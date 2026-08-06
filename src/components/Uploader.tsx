@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { useI18n } from '../lib/i18n'
 
 export default function Uploader({
   onLoad,
@@ -9,6 +10,7 @@ export default function Uploader({
 }) {
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { t } = useI18n()
 
   const readFile = useCallback(
     (file: File) => {
@@ -33,11 +35,8 @@ export default function Uploader({
     <div className="uploader-screen">
       <div className="uploader-hero">
         <span className="logo-big">◆</span>
-        <h1>Claude Code Trajectory Viewer</h1>
-        <p className="tagline">
-          Drop a <code>.jsonl</code> session file to visualize the timeline, tool
-          calls, and code diffs.
-        </p>
+        <h1>{t('uploader.title')}</h1>
+        <p className="tagline">{t('uploader.tagline')}</p>
       </div>
 
       <div
@@ -65,8 +64,8 @@ export default function Uploader({
         <div className="dropzone-inner">
           <div className="dropzone-icon">⬆</div>
           <div className="dropzone-text">
-            <strong>Drop a trajectory here</strong>
-            <span>or click to browse</span>
+            <strong>{t('uploader.drop')}</strong>
+            <span>{t('uploader.browse')}</span>
           </div>
         </div>
       </div>
@@ -74,12 +73,9 @@ export default function Uploader({
       {error && <div className="upload-error">⚠ {error}</div>}
 
       <div className="uploader-hint">
+        <p>{t('uploader.hintLocation')}</p>
         <p>
-          Session files live under{' '}
-          <code>~/.claude/projects/&lt;project&gt;/&lt;sessionId&gt;.jsonl</code>.
-        </p>
-        <p>
-          From a terminal you can also run{' '}
+          {t('uploader.hintCli')}{' '}
           <code>npx @xinyuehtx/cc-trajectory-viewer path/to/session.jsonl</code>.
         </p>
       </div>

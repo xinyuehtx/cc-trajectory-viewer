@@ -55,19 +55,25 @@ function SplitCell({
   )
 }
 
-function DiffBody({ diff, mode }: { diff: FileDiff; mode: DiffMode }) {
-  const split = useMemo(
-    () => (mode === 'split' ? toSplitRows(diff.rows) : null),
-    [mode, diff.rows],
-  )
+/** Renders just the diff body (rows) — reused by the timeline and Diffs tab. */
+export function DiffBody({
+  rows,
+  language,
+  mode,
+}: {
+  rows: DiffRow[]
+  language?: string
+  mode: DiffMode
+}) {
+  const split = useMemo(() => (mode === 'split' ? toSplitRows(rows) : null), [mode, rows])
 
   if (mode === 'split' && split) {
     return (
       <div className="diff-body diff-body-split">
         {split.map((r, i) => (
           <div className="diff-split-row" key={i}>
-            <SplitCell row={r.left} side="left" language={diff.language} />
-            <SplitCell row={r.right} side="right" language={diff.language} />
+            <SplitCell row={r.left} side="left" language={language} />
+            <SplitCell row={r.right} side="right" language={language} />
           </div>
         ))}
       </div>
@@ -76,8 +82,8 @@ function DiffBody({ diff, mode }: { diff: FileDiff; mode: DiffMode }) {
 
   return (
     <div className="diff-body">
-      {diff.rows.map((row, i) => (
-        <UnifiedRow key={i} row={row} language={diff.language} />
+      {rows.map((row, i) => (
+        <UnifiedRow key={i} row={row} language={language} />
       ))}
     </div>
   )
@@ -87,18 +93,20 @@ export default function DiffView({
   toolName,
   input,
   mode = 'unified',
+  wrap = false,
   showHeader = true,
 }: {
   toolName: string
   input: Record<string, unknown>
   mode?: DiffMode
+  wrap?: boolean
   showHeader?: boolean
 }) {
-  const diff = useMemo(() => buildFileDiff(toolName, input), [toolName, input])
+  const diff: FileDiff | null = useMemo(() => buildFileDiff(toolName, input), [toolName, input])
   if (!diff) return null
 
   return (
-    <div className="diff">
+    <div className={`diff${wrap ? ' wrap' : ''}`}>
       {showHeader && (
         <div className="diff-header">
           <span className="diff-path" title={diff.filePath}>
@@ -111,7 +119,7 @@ export default function DiffView({
           </span>
         </div>
       )}
-      <DiffBody diff={diff} mode={mode} />
+      <DiffBody rows={diff.rows} language={diff.language} mode={mode} />
     </div>
   )
 }

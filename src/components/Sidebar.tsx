@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 import type { ParsedTrajectory } from '../types'
 import type { AnnotationIndex } from '../lib/annotations'
+import { useI18n, type Lang } from '../lib/i18n'
+import type { Theme } from '../lib/theme'
 
 function fmtInt(n: number): string {
   return n.toLocaleString()
@@ -19,6 +21,8 @@ export default function Sidebar({
   onLoadAnnotations,
   onReset,
   onOpenDiff,
+  theme,
+  onToggleTheme,
 }: {
   data: ParsedTrajectory
   fileName?: string
@@ -28,9 +32,12 @@ export default function Sidebar({
   onLoadAnnotations: (raw: string) => void
   onReset: () => void
   onOpenDiff: (eventId: string) => void
+  theme: Theme
+  onToggleTheme: () => void
 }) {
   const { meta, stats, modifiedFiles } = data
   const annInputRef = useRef<HTMLInputElement>(null)
+  const { t, lang, setLang } = useI18n()
 
   return (
     <aside className="sidebar">
@@ -47,13 +54,13 @@ export default function Sidebar({
       </div>
 
       <button className="reset-button" onClick={onReset}>
-        ← Open another file
+        {t('sidebar.openAnother')}
       </button>
 
       {meta.title && <div className="session-title">{meta.title}</div>}
 
       <section className="sidebar-section">
-        <h3>Session</h3>
+        <h3>{t('sidebar.session')}</h3>
         <dl className="meta-list">
           {meta.cwd && (
             <>
@@ -91,42 +98,42 @@ export default function Sidebar({
       </section>
 
       <section className="sidebar-section">
-        <h3>Stats</h3>
+        <h3>{t('sidebar.stats')}</h3>
         <div className="stat-grid">
           <div className="stat">
             <span className="stat-num">{fmtInt(stats.userMessages)}</span>
-            <span className="stat-label">user</span>
+            <span className="stat-label">{t('stat.user')}</span>
           </div>
           <div className="stat">
             <span className="stat-num">{fmtInt(stats.assistantMessages)}</span>
-            <span className="stat-label">assistant</span>
+            <span className="stat-label">{t('stat.assistant')}</span>
           </div>
           <div className="stat">
             <span className="stat-num">{fmtInt(stats.toolCalls)}</span>
-            <span className="stat-label">tool calls</span>
+            <span className="stat-label">{t('stat.toolCalls')}</span>
           </div>
           <div className="stat">
             <span className="stat-num">{fmtInt(stats.outputTokens)}</span>
-            <span className="stat-label">out tokens</span>
+            <span className="stat-label">{t('stat.outTokens')}</span>
           </div>
           <div className="stat">
             <span className="stat-num">{fmtInt(stats.inputTokens)}</span>
-            <span className="stat-label">in tokens</span>
+            <span className="stat-label">{t('stat.inTokens')}</span>
           </div>
           <div className="stat">
             <span className="stat-num">{fmtInt(stats.cacheReadTokens)}</span>
-            <span className="stat-label">cache read</span>
+            <span className="stat-label">{t('stat.cacheRead')}</span>
           </div>
         </div>
       </section>
 
       <section className="sidebar-section">
         <h3>
-          Modified files{' '}
+          {t('sidebar.modifiedFiles')}{' '}
           {modifiedFiles.length > 0 && <span className="count">{modifiedFiles.length}</span>}
         </h3>
         {modifiedFiles.length === 0 ? (
-          <p className="empty-note">No file edits in this session.</p>
+          <p className="empty-note">{t('sidebar.noEdits')}</p>
         ) : (
           <ul className="file-list">
             {modifiedFiles.map((f) => (
@@ -146,14 +153,17 @@ export default function Sidebar({
       </section>
 
       <section className="sidebar-section">
-        <h3>Annotations</h3>
+        <h3>{t('sidebar.annotations')}</h3>
         {annotations.hasAny ? (
           <div className="ann-status">
             {annotations.targetLang && (
               <div className="ann-lang">🌐 {annotations.targetLang}</div>
             )}
             <div className="ann-counts">
-              {annotations.summaries.size} summaries · {annotations.translations.size} translations
+              {t('sidebar.annCounts', {
+                s: annotations.summaries.size,
+                t: annotations.translations.size,
+              })}
             </div>
             {annotations.translations.size > 0 && (
               <label className="ann-toggle">
@@ -162,18 +172,15 @@ export default function Sidebar({
                   checked={showTranslations}
                   onChange={onToggleTranslations}
                 />
-                Show translations
+                {t('sidebar.showTranslations')}
               </label>
             )}
           </div>
         ) : (
-          <p className="empty-note">
-            No annotations loaded. Generate them with the <code>view-trajectory</code>{' '}
-            skill, or load a <code>.trajv.json</code> file.
-          </p>
+          <p className="empty-note">{t('sidebar.noAnnotations')}</p>
         )}
         <button className="link-button" onClick={() => annInputRef.current?.click()}>
-          Load annotations…
+          {t('sidebar.loadAnnotations')}
         </button>
         <input
           ref={annInputRef}
@@ -191,8 +198,42 @@ export default function Sidebar({
       </section>
 
       {data.parseErrors > 0 && (
-        <p className="parse-warning">⚠ {data.parseErrors} line(s) could not be parsed.</p>
+        <p className="parse-warning">{t('sidebar.parseWarning', { n: data.parseErrors })}</p>
       )}
+
+      <div className="sidebar-prefs">
+        <div className="pref-row">
+          <span className="pref-label">{t('sidebar.theme')}</span>
+          <div className="segmented">
+            <button
+              className={theme === 'light' ? 'active' : ''}
+              onClick={() => theme !== 'light' && onToggleTheme()}
+            >
+              ☀ {t('sidebar.themeLight')}
+            </button>
+            <button
+              className={theme === 'dark' ? 'active' : ''}
+              onClick={() => theme !== 'dark' && onToggleTheme()}
+            >
+              ☾ {t('sidebar.themeDark')}
+            </button>
+          </div>
+        </div>
+        <div className="pref-row">
+          <span className="pref-label">{t('sidebar.language')}</span>
+          <div className="segmented">
+            {(['en', 'zh'] as Lang[]).map((l) => (
+              <button
+                key={l}
+                className={lang === l ? 'active' : ''}
+                onClick={() => setLang(l)}
+              >
+                {l === 'en' ? 'EN' : '中'}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </aside>
   )
 }

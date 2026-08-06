@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ToolCallEvent } from '../types'
+import { useI18n } from '../lib/i18n'
 import ToolCall from './ToolCall'
 
 /** Distinct tool names in order of first appearance, for the header preview. */
@@ -20,13 +21,16 @@ export default function ToolCluster({
 }) {
   // Collapse large clusters by default; keep short ones open for readability.
   const [open, setOpen] = useState(calls.length <= 2 && !summary)
+  const { t } = useI18n()
   const anchorId = calls[0]?.id
 
   return (
     <div className="event tool-cluster" id={anchorId}>
       <button className="cluster-head" onClick={() => setOpen((v) => !v)}>
         <span className="cluster-caret">{open ? '▾' : '▸'}</span>
-        <span className="cluster-badge">🔧 {calls.length} tool call{calls.length === 1 ? '' : 's'}</span>
+        <span className="cluster-badge">
+          🔧 {t(calls.length === 1 ? 'cluster.calls' : 'cluster.calls_plural', { n: calls.length })}
+        </span>
         {summary ? (
           <span className="cluster-summary" title={summary}>
             {summary}

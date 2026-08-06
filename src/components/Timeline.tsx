@@ -1,5 +1,6 @@
 import type { TimelineEvent, ToolCallEvent } from '../types'
 import type { AnnotationIndex } from '../lib/annotations'
+import { useI18n } from '../lib/i18n'
 import Markdown from './Markdown'
 import Thinking from './Thinking'
 import ToolCluster from './ToolCluster'
@@ -22,6 +23,7 @@ function MessageBlock({
   targetLang?: string
   showTranslation: boolean
 }) {
+  const { t } = useI18n()
   const isUser = event.kind === 'user-text'
   return (
     <div
@@ -29,7 +31,7 @@ function MessageBlock({
       id={event.id}
     >
       <div className="message-head">
-        <span className="message-role">{isUser ? '👤 User' : '🤖 Assistant'}</span>
+        <span className="message-role">{isUser ? t('msg.user') : t('msg.assistant')}</span>
         {event.isSidechain && <span className="badge-sidechain">sidechain</span>}
         <span className="message-time">{formatTime(event.timestamp)}</span>
       </div>
@@ -37,7 +39,10 @@ function MessageBlock({
         <Markdown text={event.text} />
         {showTranslation && translation && (
           <div className="translation">
-            <div className="translation-label">译文{targetLang ? ` · ${targetLang}` : ''}</div>
+            <div className="translation-label">
+              {t('msg.translation')}
+              {targetLang ? ` · ${targetLang}` : ''}
+            </div>
             <Markdown text={translation} />
           </div>
         )}

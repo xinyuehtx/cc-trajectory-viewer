@@ -8,6 +8,24 @@
       content="Visualize Claude Code trajectory (.jsonl) files — timeline, tool calls, and code diffs."
     />
     <title>Claude Code Trajectory Viewer</title>
+    <script>
+      // Set the theme before first paint to avoid a flash of the wrong colors.
+      (function () {
+        try {
+          var saved = localStorage.getItem('trajv-theme')
+          var theme =
+            saved === 'light' || saved === 'dark'
+              ? saved
+              : window.matchMedia &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+          document.documentElement.dataset.theme = theme
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light'
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

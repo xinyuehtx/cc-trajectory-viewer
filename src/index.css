@@ -1,6 +1,16 @@
-@import 'highlight.js/styles/github-dark.css';
+/* Syntax colors are theme-driven (see --hl-* below); highlight.js CSS files
+   can't be scoped per theme, so we map the token classes ourselves. */
 
 :root {
+  --radius: 8px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+/* ---------------------------------------------------------------- dark theme */
+[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #0d1117;
   --bg-1: #131a24;
   --bg-2: #161b22;
@@ -11,6 +21,7 @@
   --text-dim: #9aa7b4;
   --text-faint: #6b7785;
   --accent: #58a6ff;
+  --on-accent: #0d1117;
   --user: #7ee787;
   --assistant: #58a6ff;
   --add-bg: rgba(46, 160, 67, 0.15);
@@ -19,10 +30,127 @@
   --del-fg: #ff7b72;
   --tool: #d2a8ff;
   --error: #ff7b72;
-  --radius: 8px;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  --hatch: rgba(255, 255, 255, 0.02);
+
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-comment: #8b949e;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-variable: #ffa657;
+  --hl-attr: #79c0ff;
+  --hl-meta: #8b949e;
+  --hl-built_in: #ffa657;
+  --hl-tag: #7ee787;
+  --hl-symbol: #79c0ff;
+}
+
+/* --------------------------------------------------------------- light theme */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-1: #f6f8fa;
+  --bg-2: #f0f3f6;
+  --bg-3: #e7ebef;
+  --border: #d0d7de;
+  --border-soft: #e4e8ec;
+  --text: #1f2328;
+  --text-dim: #57606a;
+  --text-faint: #8c959f;
+  --accent: #0969da;
+  --on-accent: #ffffff;
+  --user: #1a7f37;
+  --assistant: #0969da;
+  --add-bg: rgba(46, 160, 67, 0.15);
+  --add-fg: #1a7f37;
+  --del-bg: rgba(248, 81, 73, 0.12);
+  --del-fg: #cf222e;
+  --tool: #8250df;
+  --error: #cf222e;
+  --hatch: rgba(0, 0, 0, 0.03);
+
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-comment: #6e7781;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-variable: #953800;
+  --hl-attr: #0550ae;
+  --hl-meta: #6e7781;
+  --hl-built_in: #6639ba;
+  --hl-tag: #116329;
+  --hl-symbol: #0550ae;
+}
+
+/* highlight.js token → theme variable mapping */
+.hljs {
+  color: var(--text);
+  background: transparent;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag,
+.hljs-name {
+  color: var(--hl-keyword);
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+  color: var(--hl-string);
+}
+.hljs-comment,
+.hljs-quote {
+  color: var(--hl-comment);
+  font-style: italic;
+}
+.hljs-number,
+.hljs-literal.number {
+  color: var(--hl-number);
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-section {
+  color: var(--hl-title);
+}
+.hljs-type,
+.hljs-title.class_,
+.hljs-class .hljs-title {
+  color: var(--hl-type);
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-params {
+  color: var(--hl-variable);
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-property {
+  color: var(--hl-attr);
+}
+.hljs-meta,
+.hljs-comment.meta {
+  color: var(--hl-meta);
+}
+.hljs-built_in,
+.hljs-builtin-name {
+  color: var(--hl-built_in);
+}
+.hljs-tag {
+  color: var(--hl-tag);
+}
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+  color: var(--hl-symbol);
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 600;
 }
 
 * {
@@ -516,6 +644,25 @@ pre {
 .diff-code {
   padding-right: 14px;
   white-space: pre;
+  min-width: 0;
+}
+
+/* line wrapping (toggle) */
+.diff.wrap .diff-body {
+  overflow-x: hidden;
+}
+.diff.wrap .diff-row,
+.diff.wrap .diff-cell {
+  align-items: start;
+}
+.diff.wrap .diff-code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.diff.wrap .diff-gutter,
+.diff.wrap .diff-sign {
+  padding-top: 0;
 }
 .diff-add {
   background: var(--add-bg);
@@ -657,6 +804,20 @@ pre {
   color: var(--text-dim);
   font-size: 13px;
 }
+.diffs-toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.wrap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+}
 .mode-toggle {
   display: flex;
   border: 1px solid var(--border);
@@ -676,7 +837,7 @@ pre {
 }
 .mode-toggle button.active {
   background: var(--accent);
-  color: #0d1117;
+  color: var(--on-accent);
   font-weight: 600;
 }
 .diffs-list {
@@ -686,6 +847,36 @@ pre {
 }
 .diff-card {
   position: relative;
+}
+.diff-file {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.diff-file-versions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* version badge shown in a diff header when a file has >1 version */
+.diff-version-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-radius: 10px;
+  padding: 1px 8px;
+  flex-shrink: 0;
+}
+.diff-version-badge.external {
+  background: var(--del-bg);
+  color: var(--del-fg);
+}
+.diff-external-note {
+  font-size: 11px;
+  color: var(--del-fg);
 }
 .diff-card-index {
   position: absolute;
@@ -722,8 +913,8 @@ pre {
     45deg,
     transparent,
     transparent 6px,
-    rgba(255, 255, 255, 0.02) 6px,
-    rgba(255, 255, 255, 0.02) 12px
+    var(--hatch) 6px,
+    var(--hatch) 12px
   );
 }
 
@@ -767,6 +958,53 @@ pre {
   background: var(--bg-3);
   padding: 0 4px;
   border-radius: 3px;
+}
+
+/* sidebar preference controls (theme + language) */
+.sidebar-prefs {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+.pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pref-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+.segmented {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.segmented button {
+  background: var(--bg-2);
+  border: none;
+  color: var(--text-dim);
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.segmented button:hover {
+  color: var(--text);
+  background: var(--bg-3);
+}
+.segmented button.active {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
 }
 
 /* --------------------------------------------------------------- uploader */

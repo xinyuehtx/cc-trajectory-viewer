@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ToolCallEvent } from '../types'
 import { EDIT_TOOLS } from '../lib/parser'
 import { buildFileDiff } from '../lib/diff'
+import { useI18n } from '../lib/i18n'
 import { useNav } from '../nav'
 import ToolResult from './ToolResult'
 
@@ -39,12 +40,13 @@ function summarize(name: string, input: Record<string, unknown>): string {
 
 function InputBlock({ input }: { input: Record<string, unknown> }) {
   const [open, setOpen] = useState(false)
+  const { t } = useI18n()
   const json = JSON.stringify(input, null, 2)
   if (json === '{}') return null
   return (
     <div className="tool-input">
       <button className="link-button" onClick={() => setOpen((v) => !v)}>
-        {open ? 'Hide input' : 'Show input'}
+        {open ? t('tool.hideInput') : t('tool.showInput')}
       </button>
       {open && <pre className="tool-input-body">{json}</pre>}
     </div>
@@ -53,6 +55,7 @@ function InputBlock({ input }: { input: Record<string, unknown> }) {
 
 export default function ToolCall({ event }: { event: ToolCallEvent }) {
   const nav = useNav()
+  const { t } = useI18n()
   const isEdit = EDIT_TOOLS.has(event.name)
   const summary = summarize(event.name, event.input)
   const diff = isEdit ? buildFileDiff(event.name, event.input) : null
@@ -71,7 +74,7 @@ export default function ToolCall({ event }: { event: ToolCallEvent }) {
             {diff.added > 0 && <span className="diff-added">+{diff.added}</span>}
             {diff.removed > 0 && <span className="diff-removed">−{diff.removed}</span>}
             <button className="link-button" onClick={() => nav.openDiff(event.id)}>
-              view diff →
+              {t('tool.viewDiff')}
             </button>
           </span>
         )}

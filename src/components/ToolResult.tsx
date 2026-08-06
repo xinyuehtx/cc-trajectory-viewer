@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { ToolResult as ToolResultType } from '../types'
+import { useI18n } from '../lib/i18n'
 
 const PREVIEW_CHARS = 1600
 
 export default function ToolResult({ result }: { result: ToolResultType }) {
   const [expanded, setExpanded] = useState(false)
+  const { t } = useI18n()
   const text = result.content ?? ''
   const long = text.length > PREVIEW_CHARS
   const shown = expanded || !long ? text : text.slice(0, PREVIEW_CHARS)
@@ -13,10 +15,10 @@ export default function ToolResult({ result }: { result: ToolResultType }) {
     <div className={`tool-result${result.isError ? ' tool-result-error' : ''}`}>
       <div className="tool-result-head">
         <span className="tool-result-label">
-          {result.isError ? '✗ error' : '↳ result'}
+          {result.isError ? t('result.error') : t('result.result')}
         </span>
         {result.images > 0 && (
-          <span className="tool-result-images">🖼 {result.images} image(s)</span>
+          <span className="tool-result-images">{t('result.images', { n: result.images })}</span>
         )}
       </div>
       {text && (
@@ -27,7 +29,7 @@ export default function ToolResult({ result }: { result: ToolResultType }) {
       )}
       {long && (
         <button className="link-button" onClick={() => setExpanded((v) => !v)}>
-          {expanded ? 'Show less' : `Show ${text.length - PREVIEW_CHARS} more chars`}
+          {expanded ? t('result.showLess') : t('result.showMore', { n: text.length - PREVIEW_CHARS })}
         </button>
       )}
     </div>

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { parseTrajectory, EDIT_TOOLS } from './lib/parser'
+import { parseTrajectory } from './lib/parser'
+import { buildFileHistories } from './lib/diff'
 import {
   emptyIndex,
   indexAnnotations,
   parseAnnotations,
   type AnnotationIndex,
 } from './lib/annotations'
-import type { ToolCallEvent } from './types'
+import { useI18n } from './lib/i18n'
+import { applyTheme, resolveTheme, saveTheme, type Theme } from './lib/theme'
 import { NavContext } from './nav'
 import Uploader from './components/Uploader'
 import Sidebar from './components/Sidebar'
@@ -17,6 +19,7 @@ import type { DiffMode } from './components/DiffView'
 type Tab = 'timeline' | 'diffs'
 
 export default function App() {
+  const { t } = useI18n()
   const [raw, setRaw] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | undefined>()
   const [annRaw, setAnnRaw] = useState<string | null>(null)
@@ -25,17 +28,31 @@ export default function App() {
 
   const [tab, setTab] = useState<Tab>('timeline')
   const [diffMode, setDiffMode] = useState<DiffMode>('unified')
+  const [wrap, setWrap] = useState(true)
   const [showTranslations, setShowTranslations] = useState(true)
+  const [theme, setTheme] = useState<Theme>(() => resolveTheme())
 
-  const handleLoad = useCallback((text: string, name: string) => {
-    if (!text.trim()) {
-      setError('The file is empty.')
-      return
-    }
-    setError(undefined)
-    setRaw(text)
-    setFileName(name)
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next: Theme = prev === 'dark' ? 'light' : 'dark'
+      applyTheme(next)
+      saveTheme(next)
+      return next
+    })
   }, [])
+
+  const handleLoad = useCallback(
+    (text: string, name: string) => {
+      if (!text.trim()) {
+        setError(t('uploader.emptyFile'))
+        return
+      }
+      setError(undefined)
+      setRaw(text)
+      setFileName(name)
+    },
+    [t],
+  )
 
   const handleLoadAnnotations = useCallback((text: string) => {
     setAnnRaw(text)
@@ -91,21 +108,28 @@ export default function App() {
     return indexAnnotations(parseAnnotations(annRaw))
   }, [annRaw])
 
-  const edits: ToolCallEvent[] = useMemo(() => {
-    if (!parsed) return []
-    return parsed.events.filter(
-      (e): e is ToolCallEvent => e.kind === 'tool-call' && EDIT_TOOLS.has(e.name),
-    )
+  const aggregated = useMemo(() => {
+    if (!parsed) return { histories: [], anchorByEvent: new Map<string, string>() }
+    return buildFileHistories(parsed.events)
   }, [parsed])
 
-  const openDiff = useCallback((eventId: string) => {
-    setTab('diffs')
-    // Wait for the Diffs tab to render before scrolling to the card.
-    setTimeout(() => {
-      const el = document.getElementById(`diff-${eventId}`)
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 60)
-  }, [])
+  const editCount = useMemo(
+    () => aggregated.histories.reduce((n, h) => n + h.editCount, 0),
+    [aggregated],
+  )
+
+  const openDiff = useCallback(
+    (eventId: string) => {
+      setTab('diffs')
+      // Wait for the Diffs tab to render before scrolling to the card.
+      setTimeout(() => {
+        const anchor = aggregated.anchorByEvent.get(eventId) ?? `diff-${eventId}`
+        const el = document.getElementById(anchor)
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 60)
+    },
+    [aggregated],
+  )
 
   const reset = useCallback(() => {
     setRaw(null)
@@ -128,12 +152,7 @@ export default function App() {
   }
 
   if (parsed.events.length === 0) {
-    return (
-      <Uploader
-        onLoad={handleLoad}
-        error="No renderable messages found — is this a Claude Code .jsonl trajectory?"
-      />
-    )
+    return <Uploader onLoad={handleLoad} error={t('uploader.noMessages')} />
   }
 
   return (
@@ -148,6 +167,8 @@ export default function App() {
           onLoadAnnotations={handleLoadAnnotations}
           onReset={reset}
           onOpenDiff={openDiff}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
         <main className="main">
           <div className="tabbar">
@@ -155,13 +176,14 @@ export default function App() {
               className={`tab${tab === 'timeline' ? ' tab-active' : ''}`}
               onClick={() => setTab('timeline')}
             >
-              Timeline
+              {t('tab.timeline')}
             </button>
             <button
               className={`tab${tab === 'diffs' ? ' tab-active' : ''}`}
               onClick={() => setTab('diffs')}
             >
-              Diffs {edits.length > 0 && <span className="tab-count">{edits.length}</span>}
+              {t('tab.diffs')}{' '}
+              {editCount > 0 && <span className="tab-count">{editCount}</span>}
             </button>
           </div>
 
@@ -173,7 +195,14 @@ export default function App() {
                 showTranslations={showTranslations}
               />
             ) : (
-              <DiffsTab edits={edits} mode={diffMode} onModeChange={setDiffMode} />
+              <DiffsTab
+                histories={aggregated.histories}
+                editCount={editCount}
+                mode={diffMode}
+                onModeChange={setDiffMode}
+                wrap={wrap}
+                onWrapChange={setWrap}
+              />
             )}
           </div>
         </main>
