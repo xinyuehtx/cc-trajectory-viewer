@@ -65,6 +65,9 @@ const messages: Record<Lang, Record<string, string>> = {
     'cluster.calls': '{n} tool call',
     'cluster.calls_plural': '{n} tool calls',
 
+    'subagent.label': 'Subagent',
+    'subagent.steps': '{n} steps',
+
     'msg.user': 'User',
     'msg.assistant': 'Assistant',
     'msg.translation': 'Translation',
@@ -77,6 +80,13 @@ const messages: Record<Lang, Record<string, string>> = {
     'uploader.hintLocation':
       'Session files live under ~/.claude/projects/<project>/<sessionId>.jsonl.',
     'uploader.hintCli': 'From a terminal you can also run',
+    'uploader.demoAlt': 'Interface demo',
+    'uploader.feat1': 'Timeline of prompts, thinking & clustered tool calls',
+    'uploader.feat2': 'Per-file aggregated red / green code diffs',
+    'uploader.feat3': 'Dark / light themes · English / 中文',
+    'uploader.sister': 'Sister project',
+    'uploader.sisterDesc': 'a viewer for Harbor ATIF trajectories',
+    'uploader.harborAbout': 'Harbor = agent evaluation framework',
     'uploader.emptyFile': 'The file is empty.',
     'uploader.noMessages':
       'No renderable messages found — is this a Claude Code .jsonl trajectory?',
@@ -135,6 +145,9 @@ const messages: Record<Lang, Record<string, string>> = {
     'cluster.calls': '{n} 次工具调用',
     'cluster.calls_plural': '{n} 次工具调用',
 
+    'subagent.label': '子智能体',
+    'subagent.steps': '{n} 步',
+
     'msg.user': '用户',
     'msg.assistant': '助手',
     'msg.translation': '译文',
@@ -146,6 +159,13 @@ const messages: Record<Lang, Record<string, string>> = {
     'uploader.hintLocation':
       '会话文件位于 ~/.claude/projects/<project>/<sessionId>.jsonl。',
     'uploader.hintCli': '你也可以在终端运行',
+    'uploader.demoAlt': '界面演示',
+    'uploader.feat1': '提示词、思考与聚合工具调用的时间线',
+    'uploader.feat2': '按文件聚合的红 / 绿代码差异',
+    'uploader.feat3': '深色 / 浅色主题 · 中文 / English',
+    'uploader.sister': '姊妹项目',
+    'uploader.sisterDesc': 'Harbor ATIF 轨迹查看器',
+    'uploader.harborAbout': 'Harbor = Agent 评估框架',
     'uploader.emptyFile': '文件为空。',
     'uploader.noMessages':
       '未找到可渲染的消息 —— 这是一个 Claude Code 的 .jsonl 轨迹文件吗？',

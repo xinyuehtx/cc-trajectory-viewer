@@ -183,6 +183,7 @@ export function parseTrajectory(raw: string): ParsedTrajectory {
     // ordering the CLI's `extract` command reconstructs.
     if (!Array.isArray(content)) continue
     const textParts: string[] = []
+    let thinkIdx = 0
     for (const block of content) {
       if (!block) continue
       if (block.type === 'thinking') {
@@ -190,10 +191,12 @@ export function parseTrajectory(raw: string): ParsedTrajectory {
           events.push({
             kind: 'thinking',
             id: nextId('think'),
+            annKey: obj.uuid ? `${obj.uuid}#t${thinkIdx}` : undefined,
             text: block.thinking,
             timestamp: obj.timestamp,
             isSidechain: obj.isSidechain,
           })
+          thinkIdx += 1
         }
       } else if (block.type === 'text') {
         if (block.text?.trim()) textParts.push(block.text)

@@ -112,6 +112,8 @@ export interface AssistantTextEvent {
 export interface ThinkingEvent {
   kind: 'thinking'
   id: string
+  /** stable annotation key (message uuid + thinking index) for translations */
+  annKey?: string
   text: string
   timestamp?: string
   isSidechain?: boolean

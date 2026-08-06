@@ -9,6 +9,22 @@
 
 **在线演示：** <https://xinyuehtx.github.io/cc-trajectory-viewer/>（把 `.jsonl` 拖进页面即可）
 
+> 🔗 **姊妹项目 —— [Harbor Trajectory Viewer](https://github.com/xinyuehtx/harbor-trajectory-viewer)**
+> 同样的思路，面向 **Harbor 的 ATIF**（Agent Trajectory Interchange Format）`.json` 轨迹：
+> 浏览器端查看时间线、Token / 成本指标、子智能体下钻与按文件的代码差异。
+> _（[Harbor](https://github.com/harbor-framework/harbor) 是一个用于评估与改进 AI Agent 的框架，也是 Terminal-Bench 2.0 的官方运行器。）_
+> 如果本工具对你有帮助，也欢迎给 **[harbor-trajectory-viewer](https://github.com/xinyuehtx/harbor-trajectory-viewer)** 点个 ⭐。
+
+## 界面预览
+
+| 时间线 | 差异 |
+| --- | --- |
+| ![时间线标签页](docs/screenshots/timeline-dark.png) | ![差异标签页](docs/screenshots/diffs-dark.png) |
+
+浅色主题 —— 按文件聚合的 diff 与左侧目录树：
+
+![差异标签页 · 浅色](docs/screenshots/diffs-light.png)
+
 ## 功能特性
 
 - 🧭 **时间线（Timeline）标签页** —— 直接展示用户 / 助手消息与可折叠的思考块，并将**连续的工具调用聚合为可折叠的分组（cluster）**，让对话保持可读

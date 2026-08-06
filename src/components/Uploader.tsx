@@ -1,6 +1,12 @@
 import { useCallback, useRef, useState } from 'react'
-import { Route, UploadCloud } from 'lucide-react'
+import { GitCompare, ListTree, Palette, Route, UploadCloud } from 'lucide-react'
 import { useI18n } from '../lib/i18n'
+
+const SISTER_URL = 'https://github.com/xinyuehtx/harbor-trajectory-viewer'
+const HARBOR_URL = 'https://github.com/harbor-framework/harbor'
+// Relative path resolves correctly under both the localhost root and the
+// GitHub Pages project sub-path (build uses base: './').
+const shot = (name: string) => `screenshots/${name}`
 
 export default function Uploader({
   onLoad,
@@ -77,11 +83,42 @@ export default function Uploader({
 
       {error && <div className="upload-error">⚠ {error}</div>}
 
+      <ul className="uploader-features">
+        <li>
+          <ListTree size={16} />
+          {t('uploader.feat1')}
+        </li>
+        <li>
+          <GitCompare size={16} />
+          {t('uploader.feat2')}
+        </li>
+        <li>
+          <Palette size={16} />
+          {t('uploader.feat3')}
+        </li>
+      </ul>
+
+      <div className="uploader-shots">
+        <img src={shot('timeline-dark.png')} alt={t('uploader.demoAlt')} loading="lazy" />
+        <img src={shot('diffs-dark.png')} alt={t('uploader.demoAlt')} loading="lazy" />
+      </div>
+
       <div className="uploader-hint">
         <p>{t('uploader.hintLocation')}</p>
         <p>
           {t('uploader.hintCli')}{' '}
           <code>npx @xinyuehtx/cc-trajectory-viewer path/to/session.jsonl</code>.
+        </p>
+        <p className="uploader-sister">
+          🔗 {t('uploader.sister')}:{' '}
+          <a href={SISTER_URL} target="_blank" rel="noreferrer noopener">
+            Harbor Trajectory Viewer
+          </a>{' '}
+          — {t('uploader.sisterDesc')} (
+          <a href={HARBOR_URL} target="_blank" rel="noreferrer noopener">
+            {t('uploader.harborAbout')}
+          </a>
+          )
         </p>
       </div>
     </div>

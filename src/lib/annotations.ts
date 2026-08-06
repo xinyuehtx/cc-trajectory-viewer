@@ -6,8 +6,8 @@
 
 export interface TextUnit {
   type: 'text'
-  id: string // message uuid
-  role?: 'user' | 'assistant'
+  id: string // message uuid, or `${uuid}#t<index>` for a thinking (COT) block
+  role?: 'user' | 'assistant' | 'thinking'
   original?: string
   translation?: string
 }

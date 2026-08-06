@@ -10,6 +10,22 @@ the changes as **red/green code diffs**.
 
 **Live demo:** <https://xinyuehtx.github.io/cc-trajectory-viewer/> (drag-and-drop a `.jsonl`)
 
+> 🔗 **Sister project — [Harbor Trajectory Viewer](https://github.com/xinyuehtx/harbor-trajectory-viewer)**
+> The same idea for **Harbor's ATIF** (Agent Trajectory Interchange Format) `.json` trajectories:
+> a browser viewer with a timeline, token/cost metrics, subagent drill-down, and per-file diffs.
+> _([Harbor](https://github.com/harbor-framework/harbor) is a framework for evaluating and improving AI agents — the official Terminal-Bench 2.0 harness.)_
+> If this tool helps you, give **[harbor-trajectory-viewer](https://github.com/xinyuehtx/harbor-trajectory-viewer)** a ⭐ too.
+
+## Screenshots
+
+| Timeline | Diffs |
+| --- | --- |
+| ![Timeline tab](docs/screenshots/timeline-dark.png) | ![Diffs tab](docs/screenshots/diffs-dark.png) |
+
+Light theme — aggregated per-file diffs with a directory tree:
+
+![Diffs tab in light theme](docs/screenshots/diffs-light.png)
+
 ## Features
 
 - 🧭 **Timeline tab** — user / assistant messages and collapsible thinking, with **consecutive tool calls grouped into collapsible clusters** so the conversation stays readable

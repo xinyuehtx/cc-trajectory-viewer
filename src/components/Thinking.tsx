@@ -4,7 +4,17 @@ import type { ThinkingEvent } from '../types'
 import { useI18n } from '../lib/i18n'
 import Markdown from './Markdown'
 
-export default function Thinking({ event }: { event: ThinkingEvent }) {
+export default function Thinking({
+  event,
+  translation,
+  targetLang,
+  showTranslation,
+}: {
+  event: ThinkingEvent
+  translation?: string
+  targetLang?: string
+  showTranslation: boolean
+}) {
   const [open, setOpen] = useState(false)
   const { t } = useI18n()
   const firstLine = event.text.trim().split('\n')[0].slice(0, 120)
@@ -24,6 +34,15 @@ export default function Thinking({ event }: { event: ThinkingEvent }) {
       {open && (
         <div className="thinking-body">
           <Markdown text={event.text} />
+          {showTranslation && translation && (
+            <div className="translation">
+              <div className="translation-label">
+                {t('msg.translation')}
+                {targetLang ? ` · ${targetLang}` : ''}
+              </div>
+              <Markdown text={translation} />
+            </div>
+          )}
         </div>
       )}
     </div>

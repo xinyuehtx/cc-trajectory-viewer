@@ -42,10 +42,17 @@ export function buildUnits(raw) {
     // assistant: thinking → merged text → tool calls (same order as the viewer)
     if (!Array.isArray(content)) continue
     const textParts = []
+    let thinkIdx = 0
     for (const b of content) {
       if (!b) continue
-      if (b.type === 'thinking' && (b.thinking || '').trim()) markers.push({ k: 'think' })
-      else if (b.type === 'text' && (b.text || '').trim()) textParts.push(b.text)
+      if (b.type === 'thinking' && (b.thinking || '').trim()) {
+        markers.push({
+          k: 'think',
+          id: obj.uuid ? `${obj.uuid}#t${thinkIdx}` : undefined,
+          text: b.thinking,
+        })
+        thinkIdx += 1
+      } else if (b.type === 'text' && (b.text || '').trim()) textParts.push(b.text)
     }
     if (textParts.length) {
       markers.push({ k: 'text', id: obj.uuid, role: 'assistant', text: textParts.join('\n\n') })
@@ -84,8 +91,17 @@ export function buildUnits(raw) {
         translation: '',
       })
     } else {
-      // thinking breaks a cluster but is not itself an annotatable unit
+      // thinking breaks a cluster and is itself a translatable unit (COT text)
       flush()
+      if (m.id) {
+        units.push({
+          type: 'text',
+          id: m.id,
+          role: 'thinking',
+          original: m.text,
+          translation: '',
+        })
+      }
     }
   }
   flush()

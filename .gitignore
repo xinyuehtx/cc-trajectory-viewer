@@ -6,3 +6,6 @@ dist
 npm-debug.log*
 yarn-error.log*
 *.tsbuildinfo
+
+# Playwright MCP scratch output (screenshots, snapshots, console logs)
+.playwright-mcp/

@@ -1,4 +1,5 @@
-import { Bot, User } from 'lucide-react'
+import { useState } from 'react'
+import { Bot, ChevronDown, ChevronRight, User } from 'lucide-react'
 import type { TimelineEvent, ToolCallEvent } from '../types'
 import type { AnnotationIndex } from '../lib/annotations'
 import { useI18n } from '../lib/i18n'
@@ -55,12 +56,14 @@ function MessageBlock({
   )
 }
 
-/** Group the flat event list, collapsing runs of consecutive tool calls. */
+// --------------------------------------------------------------- grouping
 type Group =
   | { kind: 'single'; event: TimelineEvent }
   | { kind: 'cluster'; calls: ToolCallEvent[] }
+  | { kind: 'subagent'; events: TimelineEvent[] }
 
-function groupEvents(events: TimelineEvent[]): Group[] {
+/** Collapse runs of consecutive tool calls into clusters (main-chain events). */
+function groupMain(events: TimelineEvent[]): Group[] {
   const groups: Group[] = []
   let cluster: ToolCallEvent[] = []
   const flush = () => {
@@ -70,9 +73,8 @@ function groupEvents(events: TimelineEvent[]): Group[] {
     }
   }
   for (const event of events) {
-    if (event.kind === 'tool-call') {
-      cluster.push(event)
-    } else {
+    if (event.kind === 'tool-call') cluster.push(event)
+    else {
       flush()
       groups.push({ kind: 'single', event })
     }
@@ -81,27 +83,51 @@ function groupEvents(events: TimelineEvent[]): Group[] {
   return groups
 }
 
-export default function Timeline({
-  events,
+/** Split off runs of sidechain (subagent) events into their own blocks. */
+function isSidechain(e: TimelineEvent): boolean {
+  return e.kind !== 'system' && Boolean(e.isSidechain)
+}
+
+function groupTimeline(events: TimelineEvent[]): Group[] {
+  const groups: Group[] = []
+  let i = 0
+  while (i < events.length) {
+    if (isSidechain(events[i])) {
+      const run: TimelineEvent[] = []
+      while (i < events.length && isSidechain(events[i])) run.push(events[i++])
+      groups.push({ kind: 'subagent', events: run })
+    } else {
+      const run: TimelineEvent[] = []
+      while (i < events.length && !isSidechain(events[i])) run.push(events[i++])
+      groups.push(...groupMain(run))
+    }
+  }
+  return groups
+}
+
+function GroupList({
+  groups,
   annotations,
   showTranslations,
 }: {
-  events: TimelineEvent[]
+  groups: Group[]
   annotations: AnnotationIndex
   showTranslations: boolean
 }) {
-  const groups = groupEvents(events)
-
   return (
-    <div className="timeline">
+    <>
       {groups.map((group, i) => {
         if (group.kind === 'cluster') {
           const summary = annotations.summaries.get(group.calls[0].toolUseId)
+          return <ToolCluster key={group.calls[0].id} calls={group.calls} summary={summary} />
+        }
+        if (group.kind === 'subagent') {
           return (
-            <ToolCluster
-              key={group.calls[0].id}
-              calls={group.calls}
-              summary={summary}
+            <Subagent
+              key={`sub-${group.events[0]?.id ?? i}`}
+              events={group.events}
+              annotations={annotations}
+              showTranslations={showTranslations}
             />
           )
         }
@@ -119,7 +145,15 @@ export default function Timeline({
               />
             )
           case 'thinking':
-            return <Thinking key={event.id} event={event} />
+            return (
+              <Thinking
+                key={event.id}
+                event={event}
+                translation={event.annKey ? annotations.translations.get(event.annKey) : undefined}
+                targetLang={annotations.targetLang}
+                showTranslation={showTranslations}
+              />
+            )
           case 'system':
             return (
               <div className="event system" key={event.id} id={event.id}>
@@ -131,6 +165,58 @@ export default function Timeline({
             return <span key={i} />
         }
       })}
+    </>
+  )
+}
+
+function Subagent({
+  events,
+  annotations,
+  showTranslations,
+}: {
+  events: TimelineEvent[]
+  annotations: AnnotationIndex
+  showTranslations: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const { t } = useI18n()
+  const groups = groupMain(events)
+  const anchorId = events[0]?.id
+
+  return (
+    <div className="event subagent" id={anchorId}>
+      <button className="subagent-head" onClick={() => setOpen((v) => !v)}>
+        <span className="subagent-caret">
+          {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+        </span>
+        <span className="subagent-badge">
+          <Bot size={14} />
+          {t('subagent.label')}
+        </span>
+        <span className="subagent-count">{t('subagent.steps', { n: events.length })}</span>
+      </button>
+      {open && (
+        <div className="subagent-body">
+          <GroupList groups={groups} annotations={annotations} showTranslations={showTranslations} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function Timeline({
+  events,
+  annotations,
+  showTranslations,
+}: {
+  events: TimelineEvent[]
+  annotations: AnnotationIndex
+  showTranslations: boolean
+}) {
+  const groups = groupTimeline(events)
+  return (
+    <div className="timeline">
+      <GroupList groups={groups} annotations={annotations} showTranslations={showTranslations} />
     </div>
   )
 }
