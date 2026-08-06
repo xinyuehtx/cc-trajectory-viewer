@@ -1,5 +1,5 @@
 {
-  "name": "@xinyuehtx/cc-trajectory-viewer",
+  "name": "@tengxiaohtx/cc-trajectory-viewer",
   "version": "0.1.0",
   "description": "Visualize Claude Code trajectory (.jsonl session) files in the browser — timeline, tool calls, and code diffs. Open from the CLI or by uploading in the browser.",
   "type": "module",

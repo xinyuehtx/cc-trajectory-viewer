@@ -41,13 +41,13 @@ Light theme — aggregated per-file diffs with a directory tree:
 No install required:
 
 ```bash
-npx @xinyuehtx/cc-trajectory-viewer ~/.claude/projects/<project>/<session>.jsonl
+npx @tengxiaohtx/cc-trajectory-viewer ~/.claude/projects/<project>/<session>.jsonl
 ```
 
 Or install globally:
 
 ```bash
-npm install -g @xinyuehtx/cc-trajectory-viewer
+npm install -g @tengxiaohtx/cc-trajectory-viewer
 trajv path/to/session.jsonl
 ```
 

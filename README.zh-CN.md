@@ -40,13 +40,13 @@
 无需安装：
 
 ```bash
-npx @xinyuehtx/cc-trajectory-viewer ~/.claude/projects/<项目>/<会话>.jsonl
+npx @tengxiaohtx/cc-trajectory-viewer ~/.claude/projects/<项目>/<会话>.jsonl
 ```
 
 或全局安装：
 
 ```bash
-npm install -g @xinyuehtx/cc-trajectory-viewer
+npm install -g @tengxiaohtx/cc-trajectory-viewer
 trajv path/to/session.jsonl
 ```
 
