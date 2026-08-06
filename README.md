@@ -137,11 +137,11 @@ Then Claude Code can, on request — *"view this session's trajectory"* or
 ## Development
 
 ```bash
-npm install
-npm run dev        # Vite dev server (upload mode)
-npm run build      # -> dist/
+pnpm install
+pnpm dev           # Vite dev server (upload mode)
+pnpm build         # -> dist/
 node bin/cli.js path/to/session.jsonl   # test the CLI against a real build
-npm run typecheck
+pnpm typecheck
 ```
 
 Stack: React 18 + Vite + TypeScript. Markdown via `marked` + `DOMPurify`, syntax

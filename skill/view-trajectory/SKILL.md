@@ -93,5 +93,5 @@ appear under each message (toggle "Show translations" in the sidebar).
 ## Notes
 
 - `npx` fetches the published package, which bundles the built HTML — no build step.
-- From a local clone, run `npm run build` first, then `node bin/cli.js …`.
+- From a local clone, run `pnpm install && pnpm build` first, then `node bin/cli.js …`.
 - Everything is served from `localhost`; nothing is uploaded.

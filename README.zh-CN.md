@@ -134,11 +134,11 @@ trajv skill install --dir ~    # 安装到 ~/.claude/skills（对所有项目生
 ## 本地开发
 
 ```bash
-npm install
-npm run dev        # Vite 开发服务器（上传模式）
-npm run build      # 产物输出到 dist/
+pnpm install
+pnpm dev           # Vite 开发服务器（上传模式）
+pnpm build         # 产物输出到 dist/
 node bin/cli.js path/to/session.jsonl   # 用真实构建产物测试 CLI
-npm run typecheck
+pnpm typecheck
 ```
 
 技术栈：React 18 + Vite + TypeScript。Markdown 使用 `marked` + `DOMPurify`，语法高亮使用
