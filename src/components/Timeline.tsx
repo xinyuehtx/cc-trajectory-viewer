@@ -1,3 +1,4 @@
+import { Bot, User } from 'lucide-react'
 import type { TimelineEvent, ToolCallEvent } from '../types'
 import type { AnnotationIndex } from '../lib/annotations'
 import { useI18n } from '../lib/i18n'
@@ -31,7 +32,10 @@ function MessageBlock({
       id={event.id}
     >
       <div className="message-head">
-        <span className="message-role">{isUser ? t('msg.user') : t('msg.assistant')}</span>
+        <span className="message-role">
+          {isUser ? <User size={14} /> : <Bot size={14} />}
+          {isUser ? t('msg.user') : t('msg.assistant')}
+        </span>
         {event.isSidechain && <span className="badge-sidechain">sidechain</span>}
         <span className="message-time">{formatTime(event.timestamp)}</span>
       </div>

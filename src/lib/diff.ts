@@ -240,12 +240,14 @@ export function buildFileDiff(
 // ---------------------------------------------------------------------------
 // Per-file aggregation (Diffs tab)
 //
-// Instead of one card per edit event, we reconstruct each file's content by
-// chaining its edits and show a single net diff per file. When the file is
-// changed by something outside the trajectory (a non-Agent edit), the next
-// Agent edit's `old_string` can no longer be found in our reconstruction — that
-// is the only reliable "destructive change" signal in the log, so we close the
-// current version and open a new one (v1, v2, …).
+// Instead of one card per edit event, we replay each file's Reads and edits in
+// order to reconstruct its content and show a single net diff per file. Reads
+// anchor known regions to their real line numbers, so edits land at the right
+// place and the diff shows true line numbers. When the file is changed by
+// something outside the trajectory (a non-Agent edit), a later Agent edit's
+// `old_string` can no longer be found in our reconstruction — the only reliable
+// "destructive change" signal in the log — so we close the current version and
+// open a new one (v1, v2, …).
 // ---------------------------------------------------------------------------
 
 /** A single reconstructed version of a file (between destructive changes). */
@@ -280,33 +282,27 @@ export interface AggregatedDiffs {
   anchorByEvent: Map<string, string>
 }
 
-/** Recover file text from a Claude Code Read result (`<lineno>\t<content>`). */
+/**
+ * Recover file text (and its real starting line number) from a Claude Code Read
+ * result, whose lines look like `<lineno>\t<content>`.
+ */
 interface ReadSeed {
-  text: string
-  /** line number of the first recovered line (1 for a full read) */
+  lines: string[]
+  /** real line number of lines[0] */
   startLine: number
-  /** true when the read starts at line 1 (full file — safe to detect splits) */
-  fromTop: boolean
-  /** number of recovered lines (used to pick the widest seed) */
-  lines: number
 }
 
 function parseReadContent(raw: string): ReadSeed {
-  const lines = raw.split('\n')
+  const rawLines = raw.split('\n')
   const out: string[] = []
   let firstNo: number | undefined
-  for (const line of lines) {
+  for (const line of rawLines) {
     const m = line.match(/^\s*(\d+)\t(.*)$/)
     if (!m) continue
     if (firstNo === undefined) firstNo = Number(m[1])
     out.push(m[2])
   }
-  return {
-    text: out.length ? out.join('\n') : '',
-    startLine: firstNo ?? 1,
-    fromTop: firstNo === 1,
-    lines: out.length,
-  }
+  return { lines: out, startLine: firstNo ?? 1 }
 }
 
 function replaceIn(doc: string, oldStr: string, newStr: string, all: boolean): string {
@@ -377,149 +373,202 @@ function collapseContext(rows: DiffRow[], context = 3): DiffRow[] {
   return out
 }
 
-/** Build one FileVersion from a reconstructed base→final content pair. */
-function makeVersion(
-  base: string,
-  doc: string,
-  index: number,
-  external: boolean,
-  firstEventId: string,
-  editIds: string[],
-  startLine: number,
-): FileVersion {
-  const { rows, added, removed } = buildRows(base, doc, startLine, startLine)
+/**
+ * A contiguous known region of a file. `base` is the original text (first time
+ * we saw it, via a Read or the first edit that touched it); `doc` is the text
+ * after the Agent's edits. `startLine` is the region's real 1-based line number,
+ * so the rendered diff shows true line numbers.
+ */
+interface Segment {
+  startLine: number
+  base: string[]
+  doc: string[]
+}
+
+const join = (lines: string[]) => lines.join('\n')
+
+/** Merge segments that have become physically contiguous and still pristine. */
+function mergeContiguous(segments: Segment[]): Segment[] {
+  const sorted = [...segments].sort((a, b) => a.startLine - b.startLine)
+  const out: Segment[] = []
+  for (const seg of sorted) {
+    const prev = out[out.length - 1]
+    const prevPristine = prev && join(prev.base) === join(prev.doc)
+    const segPristine = join(seg.base) === join(seg.doc)
+    if (prev && prevPristine && segPristine && prev.startLine + prev.base.length === seg.startLine) {
+      prev.base.push(...seg.base)
+      prev.doc.push(...seg.doc)
+    } else {
+      out.push({ startLine: seg.startLine, base: [...seg.base], doc: [...seg.doc] })
+    }
+  }
+  return out
+}
+
+/** Register a Read's lines as base knowledge for regions not yet known. */
+function registerRead(segments: Segment[], seed: ReadSeed): Segment[] {
+  if (!seed.lines.length) return segments
+  const known = new Set<number>()
+  for (const s of segments) for (let i = 0; i < s.base.length; i++) known.add(s.startLine + i)
+
+  let runStart = -1
+  let run: string[] = []
+  const flush = () => {
+    if (run.length) segments.push({ startLine: runStart, base: [...run], doc: [...run] })
+    run = []
+    runStart = -1
+  }
+  seed.lines.forEach((line, i) => {
+    const no = seed.startLine + i
+    if (known.has(no)) {
+      flush()
+    } else {
+      if (runStart === -1) runStart = no
+      run.push(line)
+    }
+  })
+  flush()
+  return mergeContiguous(segments)
+}
+
+interface VersionState {
+  segments: Segment[]
+  hasRead: boolean
+  external: boolean
+  editIds: string[]
+  firstEventId: string
+}
+
+/** Turn a finished version's segments into a renderable FileVersion. */
+function renderVersion(v: VersionState, index: number): FileVersion {
+  const sorted = [...v.segments].sort((a, b) => a.startLine - b.startLine)
+  const rows: DiffRow[] = []
+  let added = 0
+  let removed = 0
+  for (const seg of sorted) {
+    const r = buildRows(join(seg.base), join(seg.doc), seg.startLine, seg.startLine)
+    rows.push(...r.rows)
+    added += r.added
+    removed += r.removed
+  }
   return {
     index,
-    external,
-    firstEventId,
-    editIds,
+    external: v.external,
+    firstEventId: v.firstEventId,
+    editIds: v.editIds,
     rows: collapseContext(rows),
     added,
     removed,
-    isFullFile: base === '',
+    isFullFile: sorted.length > 0 && sorted.every((s) => s.base.length === 0),
   }
 }
 
 /**
- * Reconstruct every edited file into one (or more) net-diff versions and build
- * a lookup from each edit event to the version card that should be scrolled to.
+ * Reconstruct every edited file into one (or more) versions and build a lookup
+ * from each edit event to the version card that should be scrolled to. Reads are
+ * replayed inline so each edit is anchored to the region it was read from, which
+ * gives the aggregated diff the file's real line numbers.
  */
 export function buildFileHistories(events: TimelineEvent[]): AggregatedDiffs {
-  // Gather, per path and in order, the edit events plus any preceding Read that
-  // can seed an accurate original baseline.
-  const editsByPath = new Map<string, ToolCallEvent[]>()
-  const seedByPath = new Map<string, ReadSeed>()
-  const firstEditOrder = new Map<string, number>()
-  const readsByPath = new Map<string, { order: number; parsed: ReadSeed }[]>()
+  const pathOf = (call: ToolCallEvent) =>
+    (call.input.file_path as string) ||
+    (call.input.notebook_path as string) ||
+    (call.input.path as string) ||
+    ''
 
-  events.forEach((ev, order) => {
-    if (ev.kind !== 'tool-call') return
-    const call = ev
-    const path =
-      (call.input.file_path as string) ||
-      (call.input.notebook_path as string) ||
-      (call.input.path as string) ||
-      ''
-    if (!path) return
-    if (call.name === 'Read' && call.result?.content && !call.result.isError) {
-      const list = readsByPath.get(path) ?? []
-      list.push({ order, parsed: parseReadContent(call.result.content) })
-      readsByPath.set(path, list)
-      return
+  // Per file, the ordered stream of reads and (successful) edits.
+  type Step = { type: 'read'; seed: ReadSeed } | { type: 'edit'; call: ToolCallEvent }
+  const stepsByPath = new Map<string, Step[]>()
+  const order: string[] = []
+  const push = (path: string, step: Step) => {
+    if (!stepsByPath.has(path)) {
+      stepsByPath.set(path, [])
+      order.push(path)
     }
-    if (EDIT_TOOLS.has(call.name)) {
-      // A failed edit (old_string not found, etc.) never touched the file —
-      // skip it so it neither corrupts the reconstruction nor looks external.
-      if (call.result?.isError) return
-      if (!editsByPath.has(path)) {
-        editsByPath.set(path, [])
-        firstEditOrder.set(path, order)
-      }
-      editsByPath.get(path)!.push(call)
-    }
-  })
+    stepsByPath.get(path)!.push(step)
+  }
 
-  // Pick the best seed before the first edit: prefer a full-from-top Read (safe
-  // for split detection + correct line numbers); otherwise the widest read.
-  for (const [path, firstOrder] of firstEditOrder) {
-    const reads = (readsByPath.get(path) ?? []).filter((r) => r.order < firstOrder && r.parsed.text)
-    let fromTop: ReadSeed | undefined
-    let widest: ReadSeed | undefined
-    for (const r of reads) {
-      if (r.parsed.fromTop) fromTop = r.parsed
-      if (!widest || r.parsed.lines > widest.lines) widest = r.parsed
+  for (const ev of events) {
+    if (ev.kind !== 'tool-call') continue
+    const path = pathOf(ev)
+    if (!path) continue
+    if (ev.name === 'Read' && ev.result?.content && !ev.result.isError) {
+      push(path, { type: 'read', seed: parseReadContent(ev.result.content) })
+    } else if (EDIT_TOOLS.has(ev.name)) {
+      // A failed edit (old_string not found, etc.) never touched the file — skip
+      // it so it neither corrupts the reconstruction nor looks like an external
+      // change.
+      if (ev.result?.isError) continue
+      push(path, { type: 'edit', call: ev })
     }
-    const best = fromTop ?? widest
-    if (best) seedByPath.set(path, best)
   }
 
   const histories: FileHistory[] = []
   const anchorByEvent = new Map<string, string>()
 
-  for (const [path, edits] of editsByPath) {
+  for (const path of order) {
+    const steps = stepsByPath.get(path)!
+    if (!steps.some((s) => s.type === 'edit')) continue
     const language = guessLanguage(path)
-    const seed = seedByPath.get(path)
-    // `seeded` = we have the full original file (from-top read), so an unmatched
-    // old_string is a trustworthy external-change signal. Without it we never
-    // split. `startLine` gives the aggregated diff the file's real line numbers.
-    let seeded = Boolean(seed?.fromTop)
-    let base = seed?.text ?? ''
-    let doc = base
-    let versionStart = base
-    let versionStartLine = seed?.startLine ?? 1
-    let versionExternal = false
-    let versionEditIds: string[] = []
-    let versionFirstEventId = edits[0].id
     const versions: FileVersion[] = []
-
-    const closeVersion = () => {
-      versions.push(
-        makeVersion(
-          versionStart,
-          doc,
-          versions.length,
-          versionExternal,
-          versionFirstEventId,
-          versionEditIds,
-          versionStartLine,
-        ),
-      )
+    let cur: VersionState = {
+      segments: [],
+      hasRead: false,
+      external: false,
+      editIds: [],
+      firstEventId: '',
     }
+    let editCount = 0
 
-    for (const e of edits) {
+    const sparseLine = () =>
+      cur.segments.reduce((mx, s) => Math.max(mx, s.startLine + s.base.length), 0) + 1 || 1
+
+    for (const step of steps) {
+      if (step.type === 'read') {
+        cur.segments = registerRead(cur.segments, step.seed)
+        if (step.seed.lines.length) cur.hasRead = true
+        continue
+      }
+
+      const e = step.call
+      editCount += 1
+      if (!cur.firstEventId) cur.firstEventId = e.id
+      cur.editIds.push(e.id)
       const ops = editOps(e)
-      if (versionEditIds.length === 0) versionFirstEventId = e.id
-      versionEditIds.push(e.id)
 
       if (ops.kind === 'write') {
-        // A full overwrite is an Agent action — same version, replace content.
-        doc = ops.content
+        // A full overwrite is an Agent action — replace all content in place.
+        cur.segments = [{ startLine: 1, base: [], doc: ops.content.split('\n') }]
         continue
       }
 
       for (const pair of ops.pairs) {
-        if (pair.old !== '' && doc.includes(pair.old)) {
-          doc = replaceIn(doc, pair.old, pair.new, pair.all)
-        } else if (seeded && pair.old !== '') {
-          // old_string not in the reconstructed file → external change detected.
-          closeVersion()
-          seeded = false // reconstruction model is broken past this point
-          versionStart = pair.old
-          doc = pair.new
-          versionStartLine = 1 // real position unknown after an external change
-          versionExternal = true
-          versionEditIds = [e.id]
-          versionFirstEventId = e.id
+        const seg = cur.segments.find((s) => pair.old !== '' && join(s.doc).includes(pair.old))
+        if (seg) {
+          seg.doc = replaceIn(join(seg.doc), pair.old, pair.new, pair.all).split('\n')
+        } else if (cur.hasRead && pair.old !== '' && cur.editIds.length > 1) {
+          // We had the file's content and the old_string is gone → something
+          // outside the trajectory changed it. Close this version, open a new one.
+          versions.push(renderVersion(cur, versions.length))
+          cur = {
+            segments: [{ startLine: 1, base: pair.old.split('\n'), doc: pair.new.split('\n') }],
+            hasRead: false,
+            external: true,
+            editIds: [e.id],
+            firstEventId: e.id,
+          }
         } else {
-          // Sparse / disjoint region — accumulate without splitting.
-          versionStart += (versionStart ? '\n' : '') + pair.old
-          doc += (doc ? '\n' : '') + pair.new
+          // Unread / disjoint region — record it without splitting.
+          cur.segments.push({
+            startLine: sparseLine(),
+            base: pair.old.split('\n'),
+            doc: pair.new.split('\n'),
+          })
         }
       }
     }
-    closeVersion()
+    versions.push(renderVersion(cur, versions.length))
 
-    // Map every edit event to its version's anchor.
     for (const v of versions) {
       const anchor = `diff-${v.firstEventId}`
       for (const id of v.editIds) anchorByEvent.set(id, anchor)
@@ -527,7 +576,7 @@ export function buildFileHistories(events: TimelineEvent[]): AggregatedDiffs {
 
     const added = versions.reduce((n, v) => n + v.added, 0)
     const removed = versions.reduce((n, v) => n + v.removed, 0)
-    histories.push({ path, language, versions, editCount: edits.length, added, removed })
+    histories.push({ path, language, versions, editCount, added, removed })
   }
 
   return { histories, anchorByEvent }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Wrench } from 'lucide-react'
 import type { ToolCallEvent } from '../types'
 import { EDIT_TOOLS } from '../lib/parser'
 import { buildFileDiff } from '../lib/diff'
@@ -63,7 +64,10 @@ export default function ToolCall({ event }: { event: ToolCallEvent }) {
   return (
     <div className="tool-call" id={event.id}>
       <div className="tool-head">
-        <span className="tool-badge">🔧 {event.name}</span>
+        <span className="tool-badge">
+          <Wrench size={13} />
+          {event.name}
+        </span>
         {summary && (
           <code className="tool-summary" title={summary}>
             {summary}

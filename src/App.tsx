@@ -12,6 +12,7 @@ import { applyTheme, resolveTheme, saveTheme, type Theme } from './lib/theme'
 import { NavContext } from './nav'
 import Uploader from './components/Uploader'
 import Sidebar from './components/Sidebar'
+import TopBar from './components/TopBar'
 import Timeline from './components/Timeline'
 import DiffsTab from './components/DiffsTab'
 import type { DiffMode } from './components/DiffView'
@@ -32,13 +33,14 @@ export default function App() {
   const [showTranslations, setShowTranslations] = useState(true)
   const [theme, setTheme] = useState<Theme>(() => resolveTheme())
 
+  // Keep the DOM attribute and stored preference in sync with theme state.
+  useEffect(() => {
+    applyTheme(theme)
+    saveTheme(theme)
+  }, [theme])
+
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => {
-      const next: Theme = prev === 'dark' ? 'light' : 'dark'
-      applyTheme(next)
-      saveTheme(next)
-      return next
-    })
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
   }, [])
 
   const handleLoad = useCallback(
@@ -158,54 +160,44 @@ export default function App() {
   return (
     <NavContext.Provider value={{ openDiff }}>
       <div className="app">
-        <Sidebar
-          data={parsed}
-          fileName={fileName}
-          annotations={annotations}
-          showTranslations={showTranslations}
-          onToggleTranslations={() => setShowTranslations((v) => !v)}
-          onLoadAnnotations={handleLoadAnnotations}
-          onReset={reset}
-          onOpenDiff={openDiff}
+        <TopBar
+          tab={tab}
+          onTabChange={setTab}
+          editCount={editCount}
           theme={theme}
           onToggleTheme={toggleTheme}
         />
-        <main className="main">
-          <div className="tabbar">
-            <button
-              className={`tab${tab === 'timeline' ? ' tab-active' : ''}`}
-              onClick={() => setTab('timeline')}
-            >
-              {t('tab.timeline')}
-            </button>
-            <button
-              className={`tab${tab === 'diffs' ? ' tab-active' : ''}`}
-              onClick={() => setTab('diffs')}
-            >
-              {t('tab.diffs')}{' '}
-              {editCount > 0 && <span className="tab-count">{editCount}</span>}
-            </button>
-          </div>
-
-          <div className="tab-content">
-            {tab === 'timeline' ? (
-              <Timeline
-                events={parsed.events}
-                annotations={annotations}
-                showTranslations={showTranslations}
-              />
-            ) : (
-              <DiffsTab
-                histories={aggregated.histories}
-                editCount={editCount}
-                mode={diffMode}
-                onModeChange={setDiffMode}
-                wrap={wrap}
-                onWrapChange={setWrap}
-              />
-            )}
-          </div>
-        </main>
+        <div className="app-body">
+          <main className="main">
+            <div className="tab-content">
+              {tab === 'timeline' ? (
+                <Timeline
+                  events={parsed.events}
+                  annotations={annotations}
+                  showTranslations={showTranslations}
+                />
+              ) : (
+                <DiffsTab
+                  histories={aggregated.histories}
+                  editCount={editCount}
+                  mode={diffMode}
+                  onModeChange={setDiffMode}
+                  wrap={wrap}
+                  onWrapChange={setWrap}
+                />
+              )}
+            </div>
+          </main>
+          <Sidebar
+            data={parsed}
+            fileName={fileName}
+            annotations={annotations}
+            showTranslations={showTranslations}
+            onToggleTranslations={() => setShowTranslations((v) => !v)}
+            onLoadAnnotations={handleLoadAnnotations}
+            onReset={reset}
+          />
+        </div>
       </div>
     </NavContext.Provider>
   )

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChevronDown, ChevronRight, Wrench } from 'lucide-react'
 import type { ToolCallEvent } from '../types'
 import { useI18n } from '../lib/i18n'
 import ToolCall from './ToolCall'
@@ -27,9 +28,12 @@ export default function ToolCluster({
   return (
     <div className="event tool-cluster" id={anchorId}>
       <button className="cluster-head" onClick={() => setOpen((v) => !v)}>
-        <span className="cluster-caret">{open ? '▾' : '▸'}</span>
+        <span className="cluster-caret">
+          {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+        </span>
         <span className="cluster-badge">
-          🔧 {t(calls.length === 1 ? 'cluster.calls' : 'cluster.calls_plural', { n: calls.length })}
+          <Wrench size={13} />
+          {t(calls.length === 1 ? 'cluster.calls' : 'cluster.calls_plural', { n: calls.length })}
         </span>
         {summary ? (
           <span className="cluster-summary" title={summary}>

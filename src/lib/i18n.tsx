@@ -54,9 +54,9 @@ const messages: Record<Lang, Record<string, string>> = {
     'tool.hideInput': 'Hide input',
     'tool.viewDiff': 'view diff →',
 
-    'result.error': '✗ error',
-    'result.result': '↳ result',
-    'result.images': '🖼 {n} image(s)',
+    'result.error': 'error',
+    'result.result': 'result',
+    'result.images': '{n} image(s)',
     'result.showLess': 'Show less',
     'result.showMore': 'Show {n} more chars',
 
@@ -65,8 +65,8 @@ const messages: Record<Lang, Record<string, string>> = {
     'cluster.calls': '{n} tool call',
     'cluster.calls_plural': '{n} tool calls',
 
-    'msg.user': '👤 User',
-    'msg.assistant': '🤖 Assistant',
+    'msg.user': 'User',
+    'msg.assistant': 'Assistant',
     'msg.translation': 'Translation',
 
     'uploader.title': 'Claude Code Trajectory Viewer',
@@ -124,9 +124,9 @@ const messages: Record<Lang, Record<string, string>> = {
     'tool.hideInput': '隐藏输入',
     'tool.viewDiff': '查看差异 →',
 
-    'result.error': '✗ 错误',
-    'result.result': '↳ 结果',
-    'result.images': '🖼 {n} 张图片',
+    'result.error': '错误',
+    'result.result': '结果',
+    'result.images': '{n} 张图片',
     'result.showLess': '收起',
     'result.showMore': '展开剩余 {n} 个字符',
 
@@ -135,8 +135,8 @@ const messages: Record<Lang, Record<string, string>> = {
     'cluster.calls': '{n} 次工具调用',
     'cluster.calls_plural': '{n} 次工具调用',
 
-    'msg.user': '👤 用户',
-    'msg.assistant': '🤖 助手',
+    'msg.user': '用户',
+    'msg.assistant': '助手',
     'msg.translation': '译文',
 
     'uploader.title': 'Claude Code 轨迹查看器',

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CornerDownRight, ImageIcon, XCircle } from 'lucide-react'
 import type { ToolResult as ToolResultType } from '../types'
 import { useI18n } from '../lib/i18n'
 
@@ -15,10 +16,14 @@ export default function ToolResult({ result }: { result: ToolResultType }) {
     <div className={`tool-result${result.isError ? ' tool-result-error' : ''}`}>
       <div className="tool-result-head">
         <span className="tool-result-label">
+          {result.isError ? <XCircle size={13} /> : <CornerDownRight size={13} />}
           {result.isError ? t('result.error') : t('result.result')}
         </span>
         {result.images > 0 && (
-          <span className="tool-result-images">{t('result.images', { n: result.images })}</span>
+          <span className="tool-result-images">
+            <ImageIcon size={13} />
+            {t('result.images', { n: result.images })}
+          </span>
         )}
       </div>
       {text && (

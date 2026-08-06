@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
+import { Route, UploadCloud } from 'lucide-react'
 import { useI18n } from '../lib/i18n'
 
 export default function Uploader({
@@ -34,7 +35,9 @@ export default function Uploader({
   return (
     <div className="uploader-screen">
       <div className="uploader-hero">
-        <span className="logo-big">◆</span>
+        <span className="logo-big">
+          <Route size={44} strokeWidth={2} />
+        </span>
         <h1>{t('uploader.title')}</h1>
         <p className="tagline">{t('uploader.tagline')}</p>
       </div>
@@ -62,7 +65,9 @@ export default function Uploader({
           }}
         />
         <div className="dropzone-inner">
-          <div className="dropzone-icon">⬆</div>
+          <div className="dropzone-icon">
+            <UploadCloud size={30} />
+          </div>
           <div className="dropzone-text">
             <strong>{t('uploader.drop')}</strong>
             <span>{t('uploader.browse')}</span>

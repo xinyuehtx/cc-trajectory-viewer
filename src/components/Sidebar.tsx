@@ -1,8 +1,8 @@
 import { useRef } from 'react'
+import { FolderOpen, Route } from 'lucide-react'
 import type { ParsedTrajectory } from '../types'
 import type { AnnotationIndex } from '../lib/annotations'
-import { useI18n, type Lang } from '../lib/i18n'
-import type { Theme } from '../lib/theme'
+import { useI18n } from '../lib/i18n'
 
 function fmtInt(n: number): string {
   return n.toLocaleString()
@@ -20,9 +20,6 @@ export default function Sidebar({
   onToggleTranslations,
   onLoadAnnotations,
   onReset,
-  onOpenDiff,
-  theme,
-  onToggleTheme,
 }: {
   data: ParsedTrajectory
   fileName?: string
@@ -31,18 +28,17 @@ export default function Sidebar({
   onToggleTranslations: () => void
   onLoadAnnotations: (raw: string) => void
   onReset: () => void
-  onOpenDiff: (eventId: string) => void
-  theme: Theme
-  onToggleTheme: () => void
 }) {
-  const { meta, stats, modifiedFiles } = data
+  const { meta, stats } = data
   const annInputRef = useRef<HTMLInputElement>(null)
-  const { t, lang, setLang } = useI18n()
+  const { t } = useI18n()
 
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <span className="logo">◆</span>
+        <span className="logo">
+          <Route size={20} strokeWidth={2.2} />
+        </span>
         <div>
           <div className="brand-title">Trajectory Viewer</div>
           {fileName && (
@@ -54,6 +50,7 @@ export default function Sidebar({
       </div>
 
       <button className="reset-button" onClick={onReset}>
+        <FolderOpen size={14} />
         {t('sidebar.openAnother')}
       </button>
 
@@ -128,31 +125,6 @@ export default function Sidebar({
       </section>
 
       <section className="sidebar-section">
-        <h3>
-          {t('sidebar.modifiedFiles')}{' '}
-          {modifiedFiles.length > 0 && <span className="count">{modifiedFiles.length}</span>}
-        </h3>
-        {modifiedFiles.length === 0 ? (
-          <p className="empty-note">{t('sidebar.noEdits')}</p>
-        ) : (
-          <ul className="file-list">
-            {modifiedFiles.map((f) => (
-              <li key={f.path}>
-                <button
-                  className="file-link"
-                  onClick={() => onOpenDiff(f.firstEventId)}
-                  title={f.path}
-                >
-                  <span className="file-name">{basename(f.path)}</span>
-                  <span className="file-edits">{f.edits}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section className="sidebar-section">
         <h3>{t('sidebar.annotations')}</h3>
         {annotations.hasAny ? (
           <div className="ann-status">
@@ -200,40 +172,6 @@ export default function Sidebar({
       {data.parseErrors > 0 && (
         <p className="parse-warning">{t('sidebar.parseWarning', { n: data.parseErrors })}</p>
       )}
-
-      <div className="sidebar-prefs">
-        <div className="pref-row">
-          <span className="pref-label">{t('sidebar.theme')}</span>
-          <div className="segmented">
-            <button
-              className={theme === 'light' ? 'active' : ''}
-              onClick={() => theme !== 'light' && onToggleTheme()}
-            >
-              ☀ {t('sidebar.themeLight')}
-            </button>
-            <button
-              className={theme === 'dark' ? 'active' : ''}
-              onClick={() => theme !== 'dark' && onToggleTheme()}
-            >
-              ☾ {t('sidebar.themeDark')}
-            </button>
-          </div>
-        </div>
-        <div className="pref-row">
-          <span className="pref-label">{t('sidebar.language')}</span>
-          <div className="segmented">
-            {(['en', 'zh'] as Lang[]).map((l) => (
-              <button
-                key={l}
-                className={lang === l ? 'active' : ''}
-                onClick={() => setLang(l)}
-              >
-                {l === 'en' ? 'EN' : '中'}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
     </aside>
   )
 }
