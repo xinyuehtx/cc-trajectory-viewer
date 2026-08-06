@@ -71,6 +71,10 @@ const messages: Record<Lang, Record<string, string>> = {
     'msg.user': 'User',
     'msg.assistant': 'Assistant',
     'msg.translation': 'Translation',
+    'msg.executed': 'tool execution',
+
+    'filter.title': 'Filters',
+    'filter.subagents': 'Show subagent steps',
 
     'uploader.title': 'Claude Code Trajectory Viewer',
     'uploader.tagline':
@@ -90,6 +94,41 @@ const messages: Record<Lang, Record<string, string>> = {
     'uploader.emptyFile': 'The file is empty.',
     'uploader.noMessages':
       'No renderable messages found — is this a Claude Code .jsonl trajectory?',
+
+    'landing.nav.features': 'Features',
+    'landing.nav.quickstart': 'Quick start',
+    'landing.nav.demo': 'Live demo',
+    'landing.backHome': 'Home',
+    'landing.hero.badge': 'Open source · Runs in your browser',
+    'landing.hero.title': 'See what Claude Code did — turn by turn.',
+    'landing.hero.subtitle':
+      'Visualize a Claude Code trajectory (.jsonl session): a readable timeline of prompts, thinking and tool calls, plus per-file red / green code diffs. Open from the CLI, or drop a file in the browser.',
+    'landing.hero.tryDemo': 'Try the live demo',
+    'landing.hero.viewGithub': 'View on GitHub',
+    'landing.hero.copied': 'Copied!',
+    'landing.features.title': 'Everything in one view',
+    'landing.features.subtitle': 'No install required to explore — the live demo runs entirely client-side.',
+    'landing.feat.timeline.title': 'Readable timeline',
+    'landing.feat.timeline.desc':
+      'Prompts, thinking and clustered tool calls laid out in order, so a long session reads like a story.',
+    'landing.feat.tools.title': 'Tool calls, decoded',
+    'landing.feat.tools.desc':
+      'Inputs and results for each tool are grouped and formatted — no more scrolling raw JSON.',
+    'landing.feat.diffs.title': 'Per-file code diffs',
+    'landing.feat.diffs.desc':
+      'Every edit aggregated into red / green diffs per file, with unified and split views.',
+    'landing.feat.theme.title': 'Themes & i18n',
+    'landing.feat.theme.desc':
+      'Dark / light themes and English / 中文, remembered across sessions.',
+    'landing.quickstart.title': 'Quick start',
+    'landing.quickstart.subtitle': 'Point it at any Claude Code session file — zero config.',
+    'landing.quickstart.cliNote': 'Open a trajectory straight from your terminal:',
+    'landing.quickstart.browserNote': 'Prefer the browser? Open the live demo and drop a .jsonl file in.',
+    'landing.quickstart.openDemo': 'Open the live demo →',
+    'landing.footer.tagline': 'Visualize Claude Code trajectories in the browser.',
+    'landing.footer.github': 'GitHub',
+    'landing.footer.npm': 'npm',
+    'landing.footer.demo': 'Live demo',
   },
   zh: {
     'tab.timeline': '时间线',
@@ -151,6 +190,10 @@ const messages: Record<Lang, Record<string, string>> = {
     'msg.user': '用户',
     'msg.assistant': '助手',
     'msg.translation': '译文',
+    'msg.executed': '工具执行',
+
+    'filter.title': '过滤',
+    'filter.subagents': '显示子代理步骤',
 
     'uploader.title': 'Claude Code 轨迹查看器',
     'uploader.tagline': '拖入 .jsonl 会话文件，可视化时间线、工具调用与代码差异。',
@@ -169,6 +212,37 @@ const messages: Record<Lang, Record<string, string>> = {
     'uploader.emptyFile': '文件为空。',
     'uploader.noMessages':
       '未找到可渲染的消息 —— 这是一个 Claude Code 的 .jsonl 轨迹文件吗？',
+
+    'landing.nav.features': '功能',
+    'landing.nav.quickstart': '快速开始',
+    'landing.nav.demo': '在线演示',
+    'landing.backHome': '返回首页',
+    'landing.hero.badge': '开源 · 浏览器中运行',
+    'landing.hero.title': '看清 Claude Code 的每一步。',
+    'landing.hero.subtitle':
+      '可视化 Claude Code 的轨迹（.jsonl 会话）：以清晰的时间线呈现提示词、思考与工具调用，并按文件展示红 / 绿代码差异。可从命令行打开，也可直接在浏览器拖入文件。',
+    'landing.hero.tryDemo': '试用在线演示',
+    'landing.hero.viewGithub': '在 GitHub 查看',
+    'landing.hero.copied': '已复制！',
+    'landing.features.title': '所需的一切，尽在一屏',
+    'landing.features.subtitle': '无需安装即可体验 —— 在线演示完全在浏览器本地运行。',
+    'landing.feat.timeline.title': '清晰的时间线',
+    'landing.feat.timeline.desc': '提示词、思考与聚合的工具调用按序排列，再长的会话也能像故事一样读下来。',
+    'landing.feat.tools.title': '工具调用一目了然',
+    'landing.feat.tools.desc': '每个工具的输入与结果都被归组并格式化，不必再翻阅原始 JSON。',
+    'landing.feat.diffs.title': '按文件的代码差异',
+    'landing.feat.diffs.desc': '所有编辑按文件聚合为红 / 绿差异，支持统一视图与分栏视图。',
+    'landing.feat.theme.title': '主题与多语言',
+    'landing.feat.theme.desc': '深色 / 浅色主题、中文 / English，并跨会话记住你的选择。',
+    'landing.quickstart.title': '快速开始',
+    'landing.quickstart.subtitle': '指向任意 Claude Code 会话文件 —— 零配置。',
+    'landing.quickstart.cliNote': '直接在终端打开一个轨迹：',
+    'landing.quickstart.browserNote': '更喜欢浏览器？打开在线演示并拖入一个 .jsonl 文件即可。',
+    'landing.quickstart.openDemo': '打开在线演示 →',
+    'landing.footer.tagline': '在浏览器中可视化 Claude Code 轨迹。',
+    'landing.footer.github': 'GitHub',
+    'landing.footer.npm': 'npm',
+    'landing.footer.demo': '在线演示',
   },
 }
 

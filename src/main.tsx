@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
+import Root from './Root'
 import { I18nProvider } from './lib/i18n'
 import { applyTheme, resolveTheme } from './lib/theme'
 import './index.css'
@@ -12,7 +12,7 @@ applyTheme(resolveTheme())
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <I18nProvider>
-      <App />
+      <Root />
     </I18nProvider>
   </React.StrictMode>,
 )

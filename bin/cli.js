@@ -152,8 +152,13 @@ async function cmdExtract(args) {
   await writeFile(out, JSON.stringify(scaffold, null, 2) + '\n', 'utf8')
   const texts = units.filter((u) => u.type === 'text').length
   const clusters = units.filter((u) => u.type === 'cluster').length
+  const subagents = units.filter((u) => u.type === 'subagent').length
   console.log(`✓ Wrote annotation scaffold: ${out}`)
-  console.log(`  ${texts} text unit(s), ${clusters} tool-cluster(s).`)
+  console.log(
+    `  ${texts} text unit(s), ${clusters} tool-cluster(s)` +
+      (subagents ? `, ${subagents} subagent(s)` : '') +
+      '.',
+  )
   console.log('  Fill in "summary" / "translation" fields, then:')
   console.log(`    trajv "${file}" --ann "${out}"`)
 }
@@ -232,7 +237,9 @@ async function cmdView(args) {
       }
     })
     server.listen(port, () => {
-      const uiUrl = `http://localhost:${port}/`
+      // Open the viewer route directly (`#/live-demo`); the site root (`#/`) is
+      // the marketing landing page, which the CLI should skip.
+      const uiUrl = `http://localhost:${port}/#/live-demo`
       console.log('\n  ◆ Claude Code Trajectory Viewer')
       if (trajectoryName) console.log(`  file:  ${trajectoryName}`)
       else console.log('  mode:  upload (drop a .jsonl in the browser)')

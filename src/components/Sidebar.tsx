@@ -18,6 +18,9 @@ export default function Sidebar({
   annotations,
   showTranslations,
   onToggleTranslations,
+  showSubagents,
+  onToggleSubagents,
+  hasSubagents,
   onLoadAnnotations,
   onReset,
 }: {
@@ -26,6 +29,9 @@ export default function Sidebar({
   annotations: AnnotationIndex
   showTranslations: boolean
   onToggleTranslations: () => void
+  showSubagents: boolean
+  onToggleSubagents: () => void
+  hasSubagents: boolean
   onLoadAnnotations: (raw: string) => void
   onReset: () => void
 }) {
@@ -123,6 +129,16 @@ export default function Sidebar({
           </div>
         </div>
       </section>
+
+      {hasSubagents && (
+        <section className="sidebar-section">
+          <h3>{t('filter.title')}</h3>
+          <label className="ann-toggle">
+            <input type="checkbox" checked={showSubagents} onChange={onToggleSubagents} />
+            {t('filter.subagents')}
+          </label>
+        </section>
+      )}
 
       <section className="sidebar-section">
         <h3>{t('sidebar.annotations')}</h3>

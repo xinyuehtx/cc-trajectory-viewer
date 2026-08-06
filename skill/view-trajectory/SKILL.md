@@ -41,15 +41,20 @@ The viewer can overlay a sidecar **annotations** file (`<file>.trajv.json`) that
 adds, per stable id:
 
 - a **one-line summary** for each cluster of consecutive tool calls (shown in the
-  cluster header), and
+  cluster header),
+- a **one-line summary** for each collapsed tool-execution message (assistant text
+  that starts with "Executed …" / "Running …" — a `text` unit that has a `summary`
+  field) and for each **subagent** block (a `subagent` unit), shown in their
+  collapsed headers, and
 - a **translation** of each user/assistant message into a target language (shown
   beneath the original text).
 
 **Workflow — you (the agent) fill in the annotations:**
 
 1. **Generate the scaffold.** This writes a `.trajv.json` next to the trajectory
-   with every text unit (with its `original` text) and every tool-call cluster
-   (with the tool names) already enumerated and correctly keyed:
+   with every text unit (with its `original` text), every tool-call cluster
+   (with the tool names), and every subagent block already enumerated and
+   correctly keyed:
 
    ```bash
    npx -y @xinyuehtx/cc-trajectory-viewer extract "<file>.jsonl" --lang "<target language>"
@@ -66,6 +71,8 @@ adds, per stable id:
      "targetLang": "简体中文",
      "units": [
        { "type": "text", "id": "<uuid>", "role": "user", "original": "…", "translation": "" },
+       { "type": "text", "id": "<uuid>", "role": "assistant", "original": "Executed …", "translation": "", "summary": "" },
+       { "type": "subagent", "id": "<first event id>", "count": 7, "summary": "" },
        { "type": "cluster", "id": "<tool_use id>", "tools": ["Read","Edit"], "count": 2, "summary": "" }
      ]
    }
@@ -75,6 +82,10 @@ adds, per stable id:
    - For each `cluster` unit, write a concise (≤ ~12 word) `summary` of what that
      run of tool calls accomplished, based on its `tools` and the surrounding
      context in the trajectory.
+   - For each `subagent` unit, write a concise (≤ ~12 word) `summary` of what that
+     subagent block did.
+   - For each `text` unit **that has a `summary` field**, write a concise
+     (≤ ~12 word) `summary` of the tool execution it narrates.
    - For each `text` unit, write the `translation` of `original` into the target
      language. Preserve Markdown and code. Leave `translation` empty to skip a unit.
    - **Do not** change any `id`, `type`, `original`, or `tools` field — those keys
@@ -87,8 +98,9 @@ adds, per stable id:
    # or explicitly:  … "<file>.jsonl" --ann "<file>.jsonl.trajv.json"
    ```
 
-In the UI, cluster summaries appear in each cluster's header, and translations
-appear under each message (toggle "Show translations" in the sidebar).
+In the UI, cluster / subagent / tool-execution summaries appear in their
+collapsed headers, and translations appear under each message (toggle "Show
+translations" in the sidebar).
 
 ## Notes
 

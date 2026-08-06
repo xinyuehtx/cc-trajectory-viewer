@@ -31,6 +31,7 @@ export default function App() {
   const [diffMode, setDiffMode] = useState<DiffMode>('unified')
   const [wrap, setWrap] = useState(true)
   const [showTranslations, setShowTranslations] = useState(true)
+  const [showSubagents, setShowSubagents] = useState(true)
   const [theme, setTheme] = useState<Theme>(() => resolveTheme())
 
   // Keep the DOM attribute and stored preference in sync with theme state.
@@ -67,8 +68,16 @@ export default function App() {
       try {
         const res = await fetch(url)
         if (!res.ok) return null
+        // Static hosts (vite preview, GitHub Pages SPA fallback) answer unknown
+        // paths like ./api/trajectory with index.html and a 200. That HTML is
+        // not a trajectory — reject it so we fall through to the uploader.
+        const ctype = res.headers.get('content-type') || ''
+        if (ctype.includes('text/html')) return null
         const text = await res.text()
-        return text.trim() ? text : null
+        if (!text.trim()) return null
+        const head = text.trimStart().slice(0, 200).toLowerCase()
+        if (head.startsWith('<!doctype') || head.startsWith('<html')) return null
+        return text
       } catch {
         return null
       }
@@ -118,6 +127,11 @@ export default function App() {
   const editCount = useMemo(
     () => aggregated.histories.reduce((n, h) => n + h.editCount, 0),
     [aggregated],
+  )
+
+  const hasSubagents = useMemo(
+    () => Boolean(parsed?.events.some((e) => e.kind !== 'system' && e.isSidechain)),
+    [parsed],
   )
 
   const openDiff = useCallback(
@@ -175,6 +189,7 @@ export default function App() {
                   events={parsed.events}
                   annotations={annotations}
                   showTranslations={showTranslations}
+                  showSubagents={showSubagents}
                 />
               ) : (
                 <DiffsTab
@@ -194,6 +209,9 @@ export default function App() {
             annotations={annotations}
             showTranslations={showTranslations}
             onToggleTranslations={() => setShowTranslations((v) => !v)}
+            showSubagents={showSubagents}
+            onToggleSubagents={() => setShowSubagents((v) => !v)}
+            hasSubagents={hasSubagents}
             onLoadAnnotations={handleLoadAnnotations}
             onReset={reset}
           />

@@ -40,6 +40,7 @@ export default function Uploader({
 
   return (
     <div className="uploader-screen">
+      <a className="uploader-back" href="#/">← {t('landing.backHome')}</a>
       <div className="uploader-hero">
         <span className="logo-big">
           <Route size={44} strokeWidth={2} />

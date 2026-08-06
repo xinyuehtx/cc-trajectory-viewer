@@ -24,9 +24,9 @@ export default function TopBar({
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <span className="topbar-logo">
+        <a className="topbar-logo" href="#/" title={t('landing.backHome')} aria-label={t('landing.backHome')}>
           <Route size={20} strokeWidth={2.2} />
-        </span>
+        </a>
         <nav className="tabbar" role="tablist">
           <button
             className={`tab${tab === 'timeline' ? ' tab-active' : ''}`}
