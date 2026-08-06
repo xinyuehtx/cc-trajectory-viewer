@@ -1,0 +1,68 @@
+{
+  "name": "@xinyuehtx/cc-trajectory-viewer",
+  "version": "0.1.0",
+  "description": "Visualize Claude Code trajectory (.jsonl session) files in the browser — timeline, tool calls, and code diffs. Open from the CLI or by uploading in the browser.",
+  "type": "module",
+  "license": "MIT",
+  "author": "xinyuehtx",
+  "homepage": "https://xinyuehtx.github.io/cc-trajectory-viewer/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xinyuehtx/cc-trajectory-viewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xinyuehtx/cc-trajectory-viewer/issues"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "trajectory",
+    "viewer",
+    "visualizer",
+    "jsonl",
+    "diff",
+    "agent"
+  ],
+  "bin": {
+    "cctv": "bin/cli.js",
+    "cc-trajectory-viewer": "bin/cli.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "skill",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "start": "node bin/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "diff": "^5.2.0",
+    "dompurify": "^3.1.6",
+    "highlight.js": "^11.10.0",
+    "marked": "^13.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/diff": "^5.2.1",
+    "@types/dompurify": "^3.0.5",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
+  }
+}
