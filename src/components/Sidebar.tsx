@@ -169,7 +169,7 @@ export default function Sidebar({
         ) : (
           <p className="empty-note">
             No annotations loaded. Generate them with the <code>view-trajectory</code>{' '}
-            skill, or load a <code>.cctv.json</code> file.
+            skill, or load a <code>.trajv.json</code> file.
           </p>
         )}
         <button className="link-button" onClick={() => annInputRef.current?.click()}>

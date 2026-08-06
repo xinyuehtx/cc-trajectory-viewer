@@ -1,4 +1,4 @@
-// Sidecar annotation format (`*.cctv.json`) produced by the `view-trajectory`
+// Sidecar annotation format (`*.trajv.json`) produced by the `view-trajectory`
 // agent skill. It carries, per stable id:
 //   - text translations, keyed by a message uuid
 //   - tool-cluster summaries, keyed by the FIRST tool_use id of the cluster

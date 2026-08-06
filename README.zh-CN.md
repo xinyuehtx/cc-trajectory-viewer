@@ -31,29 +31,29 @@ npx @xinyuehtx/cc-trajectory-viewer ~/.claude/projects/<项目>/<会话>.jsonl
 
 ```bash
 npm install -g @xinyuehtx/cc-trajectory-viewer
-cctv path/to/session.jsonl
+trajv path/to/session.jsonl
 ```
 
 不带参数运行则以上传模式打开浏览器：
 
 ```bash
-cctv
+trajv
 ```
 
 ### 命令行用法
 
 ```
-cctv [file.jsonl] [options]         打开一个轨迹文件（默认命令）
-cctv extract <file.jsonl> [opts]    生成标注脚手架（.cctv.json）
-cctv skill install [--dir <dir>]    把 Claude Code skill 安装到 .claude/skills
+trajv [file.jsonl] [options]         打开一个轨迹文件（默认命令）
+trajv extract <file.jsonl> [opts]    生成标注脚手架（.trajv.json）
+trajv skill install [--dir <dir>]    把 Claude Code skill 安装到 .claude/skills
 
 view 选项：
   -p, --port <n>   监听端口（默认 4179）
-  -a, --ann <f>    要叠加的标注 JSON（默认使用同目录的 <file>.cctv.json）
+  -a, --ann <f>    要叠加的标注 JSON（默认使用同目录的 <file>.trajv.json）
       --no-open    不自动打开浏览器
 
 extract 选项：
-  -o, --out <f>    输出路径（默认 <file>.cctv.json）
+  -o, --out <f>    输出路径（默认 <file>.trajv.json）
       --lang <s>   记录在脚手架中的目标语言（例如 "简体中文"）
 
   -h, --help       显示帮助
@@ -73,7 +73,7 @@ Claude Code 会把每个会话保存在：
 
 ```bash
 DIR="$HOME/.claude/projects/$(pwd | sed 's#[/.]#-#g')"
-cctv "$(ls -t "$DIR"/*.jsonl | head -1)"
+trajv "$(ls -t "$DIR"/*.jsonl | head -1)"
 ```
 
 ## 仅用浏览器
@@ -84,18 +84,18 @@ cctv "$(ls -t "$DIR"/*.jsonl | head -1)"
 
 ## 标注：摘要与翻译
 
-查看器可以叠加一个同目录的 sidecar 文件 `*.cctv.json`，为**每组连续工具调用**添加一行
+查看器可以叠加一个同目录的 sidecar 文件 `*.trajv.json`，为**每组连续工具调用**添加一行
 **摘要（summary）**，并为**每条消息**添加**翻译（translation）**。可由 `view-trajectory`
 这个 skill 驱动 Agent 自动生成，也可以手动完成：
 
 ```bash
 # 1) 生成脚手架 —— 枚举所有消息与工具调用分组，并正确绑定 key
-cctv extract session.jsonl --lang "简体中文"
+trajv extract session.jsonl --lang "简体中文"
 
-# 2) 在 session.jsonl.cctv.json 中填写空的 "summary" / "translation" 字段
+# 2) 在 session.jsonl.trajv.json 中填写空的 "summary" / "translation" 字段
 
-# 3) 查看 —— 会自动加载同目录的 .cctv.json
-cctv session.jsonl
+# 3) 查看 —— 会自动加载同目录的 .trajv.json
+trajv session.jsonl
 ```
 
 摘要会显示在每个分组的标题栏；翻译显示在每条消息下方（可在侧边栏开关）。
@@ -108,8 +108,8 @@ npm 包内置了一个位于 `skill/view-trajectory/` 的 skill。把它安装�
 `.claude/skills/`：
 
 ```bash
-cctv skill install            # 安装到 ./.claude/skills
-cctv skill install --dir ~    # 安装到 ~/.claude/skills（对所有项目生效）
+trajv skill install            # 安装到 ./.claude/skills
+trajv skill install --dir ~    # 安装到 ~/.claude/skills（对所有项目生效）
 ```
 
 之后你就可以让 Claude Code 按需执行——例如 *“看看这个会话的轨迹”* 或

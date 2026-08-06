@@ -2,7 +2,7 @@
 // cc-trajectory-viewer CLI
 // Subcommands:
 //   view (default)  serve the web app + a trajectory, open the browser
-//   extract         build an annotation scaffold (.cctv.json) from a trajectory
+//   extract         build an annotation scaffold (.trajv.json) from a trajectory
 //   skill install   copy the bundled Claude Code skill into .claude/skills
 // Uses only Node.js builtins — zero runtime dependencies.
 
@@ -38,17 +38,17 @@ const HELP = `
 cc-trajectory-viewer — visualize a Claude Code trajectory in the browser
 
 Usage:
-  cctv [file.jsonl] [options]         Open a trajectory (default: view)
-  cctv extract <file.jsonl> [opts]    Write an annotation scaffold (.cctv.json)
-  cctv skill install [--dir <dir>]    Install the Claude Code skill into .claude/skills
+  trajv [file.jsonl] [options]         Open a trajectory (default: view)
+  trajv extract <file.jsonl> [opts]    Write an annotation scaffold (.trajv.json)
+  trajv skill install [--dir <dir>]    Install the Claude Code skill into .claude/skills
 
 View options:
   -p, --port <n>      Port to listen on (default: 4179)
-  -a, --ann <file>    Annotation JSON to overlay (default: <file>.cctv.json if present)
+  -a, --ann <file>    Annotation JSON to overlay (default: <file>.trajv.json if present)
       --no-open       Do not open the browser automatically
 
 Extract options:
-  -o, --out <file>    Output path (default: <file>.cctv.json)
+  -o, --out <file>    Output path (default: <file>.trajv.json)
       --lang <name>   Target language to record in the scaffold (e.g. "简体中文")
 
 General:
@@ -56,11 +56,11 @@ General:
   -v, --version       Show version
 
 Examples:
-  cctv ~/.claude/projects/my-proj/abc123.jsonl
-  cctv session.jsonl -p 8080 --no-open
-  cctv extract session.jsonl --lang "简体中文"
-  cctv session.jsonl --ann session.cctv.json
-  cctv skill install
+  trajv ~/.claude/projects/my-proj/abc123.jsonl
+  trajv session.jsonl -p 8080 --no-open
+  trajv extract session.jsonl --lang "简体中文"
+  trajv session.jsonl --ann session.trajv.json
+  trajv skill install
 `
 
 async function readVersion() {
@@ -137,7 +137,7 @@ function parseArgs(argv) {
 async function cmdExtract(args) {
   const file = args._[0]
   if (!file) {
-    console.error('✗ extract requires a trajectory file.\n  cctv extract <file.jsonl>')
+    console.error('✗ extract requires a trajectory file.\n  trajv extract <file.jsonl>')
     process.exit(1)
   }
   const abs = resolve(process.cwd(), file)
@@ -148,14 +148,14 @@ async function cmdExtract(args) {
   const raw = await readFile(abs, 'utf8')
   const units = buildUnits(raw)
   const scaffold = { version: 1, targetLang: args.lang || '', units }
-  const out = args.out ? resolve(process.cwd(), args.out) : abs + '.cctv.json'
+  const out = args.out ? resolve(process.cwd(), args.out) : abs + '.trajv.json'
   await writeFile(out, JSON.stringify(scaffold, null, 2) + '\n', 'utf8')
   const texts = units.filter((u) => u.type === 'text').length
   const clusters = units.filter((u) => u.type === 'cluster').length
   console.log(`✓ Wrote annotation scaffold: ${out}`)
   console.log(`  ${texts} text unit(s), ${clusters} tool-cluster(s).`)
   console.log('  Fill in "summary" / "translation" fields, then:')
-  console.log(`    cctv "${file}" --ann "${out}"`)
+  console.log(`    trajv "${file}" --ann "${out}"`)
 }
 
 async function cmdSkillInstall(args) {
@@ -192,10 +192,10 @@ async function cmdView(args) {
     trajectory = await readFile(abs)
     trajectoryName = abs
 
-    // Annotations: explicit --ann, else sibling <file>.cctv.json if present.
+    // Annotations: explicit --ann, else sibling <file>.trajv.json if present.
     const annPath = args.ann
       ? resolve(process.cwd(), args.ann)
-      : abs + '.cctv.json'
+      : abs + '.trajv.json'
     if (existsSync(annPath)) {
       try {
         annotations = await readFile(annPath)
@@ -260,13 +260,13 @@ async function main() {
     return cmdExtract(args)
   }
   if (sub === 'skill') {
-    // `cctv skill install`
+    // `trajv skill install`
     args._ = args._.slice(1)
     if (args._[0] === 'install' || args._.length === 0) {
       args._ = args._.slice(1)
       return cmdSkillInstall(args)
     }
-    console.error('✗ Unknown skill command. Use: cctv skill install')
+    console.error('✗ Unknown skill command. Use: trajv skill install')
     process.exit(1)
   }
   if (args.help) return void process.stdout.write(HELP)

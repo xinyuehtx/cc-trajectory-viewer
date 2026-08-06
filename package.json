@@ -24,7 +24,7 @@
     "agent"
   ],
   "bin": {
-    "cctv": "bin/cli.js",
+    "trajv": "bin/cli.js",
     "cc-trajectory-viewer": "bin/cli.js"
   },
   "files": [

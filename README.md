@@ -32,29 +32,29 @@ Or install globally:
 
 ```bash
 npm install -g @xinyuehtx/cc-trajectory-viewer
-cctv path/to/session.jsonl
+trajv path/to/session.jsonl
 ```
 
 Run with no argument to open the browser in upload mode:
 
 ```bash
-cctv
+trajv
 ```
 
 ### CLI
 
 ```
-cctv [file.jsonl] [options]         Open a trajectory (default)
-cctv extract <file.jsonl> [opts]    Write an annotation scaffold (.cctv.json)
-cctv skill install [--dir <dir>]    Install the Claude Code skill into .claude/skills
+trajv [file.jsonl] [options]         Open a trajectory (default)
+trajv extract <file.jsonl> [opts]    Write an annotation scaffold (.trajv.json)
+trajv skill install [--dir <dir>]    Install the Claude Code skill into .claude/skills
 
 View options:
   -p, --port <n>   Port to listen on (default: 4179)
-  -a, --ann <f>    Annotation JSON to overlay (default: <file>.cctv.json if present)
+  -a, --ann <f>    Annotation JSON to overlay (default: <file>.trajv.json if present)
       --no-open    Do not open the browser automatically
 
 Extract options:
-  -o, --out <f>    Output path (default: <file>.cctv.json)
+  -o, --out <f>    Output path (default: <file>.trajv.json)
       --lang <s>   Target language recorded in the scaffold (e.g. "简体中文")
 
   -h, --help       Show help
@@ -74,7 +74,7 @@ To open the most recent session for the current project:
 
 ```bash
 DIR="$HOME/.claude/projects/$(pwd | sed 's#[/.]#-#g')"
-cctv "$(ls -t "$DIR"/*.jsonl | head -1)"
+trajv "$(ls -t "$DIR"/*.jsonl | head -1)"
 ```
 
 ## Use with a browser only
@@ -86,18 +86,18 @@ file via `?src=<url>`.
 
 ## Annotations: summaries & translations
 
-The viewer can overlay a sidecar `*.cctv.json` that adds a one-line **summary**
+The viewer can overlay a sidecar `*.trajv.json` that adds a one-line **summary**
 for each cluster of consecutive tool calls and a **translation** of each message.
 The `view-trajectory` skill drives an agent to produce it, or you can do it by hand:
 
 ```bash
 # 1) scaffold — enumerates every message + tool-call cluster, correctly keyed
-cctv extract session.jsonl --lang "简体中文"
+trajv extract session.jsonl --lang "简体中文"
 
-# 2) fill in the empty "summary" / "translation" fields in session.jsonl.cctv.json
+# 2) fill in the empty "summary" / "translation" fields in session.jsonl.trajv.json
 
-# 3) view — the sibling .cctv.json is auto-loaded
-cctv session.jsonl
+# 3) view — the sibling .trajv.json is auto-loaded
+trajv session.jsonl
 ```
 
 Summaries show in each cluster's header; translations appear beneath each message
@@ -110,8 +110,8 @@ The package bundles a skill at `skill/view-trajectory/`. Install it into a
 project's (or user-level) `.claude/skills/`:
 
 ```bash
-cctv skill install            # into ./.claude/skills
-cctv skill install --dir ~    # into ~/.claude/skills (all projects)
+trajv skill install            # into ./.claude/skills
+trajv skill install --dir ~    # into ~/.claude/skills (all projects)
 ```
 
 Then Claude Code can, on request — *"view this session's trajectory"* or
