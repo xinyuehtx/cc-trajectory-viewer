@@ -1,5 +1,7 @@
 # Claude Code Trajectory Viewer
 
+**English** · [简体中文](README.zh-CN.md)
+
 Visualize [Claude Code](https://claude.com/claude-code) **trajectory** files —
 the `.jsonl` session logs Claude Code writes under `~/.claude/projects/` — as a
 clean, readable web UI. See the full timeline of user prompts, assistant replies,
