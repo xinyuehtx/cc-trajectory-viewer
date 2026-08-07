@@ -108,7 +108,7 @@ export default function Uploader({
         <p>{t('uploader.hintLocation')}</p>
         <p>
           {t('uploader.hintCli')}{' '}
-          <code>npx @xinyuehtx/cc-trajectory-viewer path/to/session.jsonl</code>.
+          <code>npx @tengxiaohtx/cc-trajectory-viewer path/to/session.jsonl</code>.
         </p>
         <p className="uploader-sister">
           🔗 {t('uploader.sister')}:{' '}

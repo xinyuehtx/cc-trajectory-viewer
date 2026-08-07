@@ -15,8 +15,8 @@ import { useI18n, type Lang } from '../lib/i18n'
 import { applyTheme, resolveTheme, saveTheme, type Theme } from '../lib/theme'
 
 const GITHUB_URL = 'https://github.com/xinyuehtx/cc-trajectory-viewer'
-const NPM_URL = 'https://www.npmjs.com/package/@xinyuehtx/cc-trajectory-viewer'
-const CLI_CMD = 'npx @xinyuehtx/cc-trajectory-viewer session.jsonl'
+const NPM_URL = 'https://www.npmjs.com/package/@tengxiaohtx/cc-trajectory-viewer'
+const CLI_CMD = 'npx @tengxiaohtx/cc-trajectory-viewer session.jsonl'
 
 const GithubIcon = ({ size = 16 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
